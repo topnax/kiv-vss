@@ -1,5 +1,5 @@
 HISTOGRAM_VALUE_DECIMAL_PLACES = 2
-HISTOGRAM_FREQUENCY_MAX_CHARS = 40
+HISTOGRAM_FREQUENCY_MAX_CHARS = 200
 HISTOGRAM_COLUMN_SYMBOL = "*"
 
 
@@ -26,7 +26,8 @@ def format_histogram_value(value):
 def print_histogram(histogram):
     max_value_label_length = len(format_histogram_value(max(histogram.values())))
 
-    for value, frequency in histogram.items():
+    for value in sorted(histogram.keys()):
+        frequency = histogram[value]
         print_histogram_item(value, frequency, max_value_label_length)
 
 
