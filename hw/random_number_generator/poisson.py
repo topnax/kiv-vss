@@ -5,7 +5,7 @@ import sys
 
 class PoisonDistribution:
 
-    def __init__(self, rate, precision=1000000, e=0.000000001):
+    def __init__(self, rate, precision=100000, e=0.000000001):
         self.rate = rate
         self.pdf_cache = {}
         self.cdf_cache = {}
@@ -17,7 +17,7 @@ class PoisonDistribution:
         # calculate the CDF by summing previous PDFs
         if n in self.cdf_cache:
            return self.cdf_cache[n]
-        cdf = sum([self.pdf(k) for k in range(0, n)])
+        cdf = sum([self.pdf(k) for k in range(0, n + 1)])
 
         # store the calculated CDF to the cache
         self.cdf_cache[n] = cdf
@@ -81,3 +81,9 @@ class PoisonDistribution:
 
     def rand(self):
         return self.cdf_inv(random.uniform(0, 1))
+
+
+if __name__ == "__main__":
+    pd = PoisonDistribution(10)
+    print(pd.cdf(5))
+
