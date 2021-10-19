@@ -5,48 +5,38 @@ import sys
 
 class PoisonDistribution:
 
-    def __init__(self, rate, precision=100000, e=0.000000001):
+    def __init__(self, rate, e=0.000000001):
         self.rate = rate
         self.pdf_cache = {}
         self.cdf_cache = {}
         self.cdf_inv_cache = {}
-        self.precision = precision
         self.initialize(e)
 
     def cdf(self, n):
         # calculate the CDF by summing previous PDFs
         if n in self.cdf_cache:
-           return self.cdf_cache[n]
+            return self.cdf_cache[n]
+
+        # compute CDF by summing over PDF values
         cdf = sum([self.pdf(k) for k in range(0, n + 1)])
 
         # store the calculated CDF to the cache
         self.cdf_cache[n] = cdf
-        # floor the CDF value (to increase the chance of utilising it) before storing it to the inverted CDF cache
-        self.cdf_inv_cache[self.floor(cdf)] = n
+        self.cdf_inv_cache[cdf] = n
         return cdf
 
-    def floor(self, v):
-        # floor a value using the precision set in the attribute
-        return math.floor(v * self.precision) / self.precision
-
-    def cdf_inv(self, v):
-        # floor the value to be looked up in order to increase the chance of cache utilization
-        v_floor = self.floor(v)
-
+    def cdf_inv(self, x):
         # check whether value present in the cache
-        if v_floor in self.cdf_inv_cache:
-            return self.cdf_inv_cache[v_floor]
+        if x in self.cdf_inv_cache:
+            return self.cdf_inv_cache[x]
 
         # initialize variables before finding inverse CDF value
         min_diff = sys.float_info.max
         min_diff_value = 0
-        for value, n in self.cdf_inv_cache.items():
-            # compute difference between the desired value and the actual value stored in the cache
-            diff = abs(value - v_floor)
-            if diff < min_diff:
-                # better match found, update variables
-                min_diff = diff
+        for value in self.cdf_inv_cache.keys():
+            if value >= x:
                 min_diff_value = value
+                break
 
         # key of the value found, fetch it from the cache
         return self.cdf_inv_cache[min_diff_value]
@@ -70,7 +60,7 @@ class PoisonDistribution:
         # initialize the generator by generating initial values INV CDF values
         diff = 1
         last_cdf = 0
-        n = 1
+        n = 0
         # compute CDF values till the lambda * 2.5 values generated or till the difference
         # before the current cdf and the previous one is smaller than a certain constant
         while n < self.rate * 2.5 or diff > e:
@@ -82,8 +72,29 @@ class PoisonDistribution:
     def rand(self):
         return self.cdf_inv(random.uniform(0, 1))
 
+    def rand_knuth(self):
+        l = math.exp(-self.rate)
+        p = 1.0
+        k = 0
+        while True:
+            k += 1
+            p *= random.uniform(0, 1)
+            if p <= l:
+                break
+        return k - 1
+
+    def expected_value(self):
+        return self.rate
+
+    def variance(self):
+        return self.rate
+
+
+def test_poisson_distribution():
+    pd = PoisonDistribution(2.5)
+    for x in range(0, 5):
+        print(f"#{x} cdf:{pd.cdf(x)}, pdf:{pd.pdf(x)}")
+
 
 if __name__ == "__main__":
-    pd = PoisonDistribution(10)
-    print(pd.cdf(5))
-
+    test_poisson_distribution()

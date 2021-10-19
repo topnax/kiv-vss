@@ -13,13 +13,13 @@ def print_histogram_item(value, frequency, max_key_label_length):
     column = frequency * HISTOGRAM_COLUMN_SYMBOL
 
     # assemble the output
-    output = f"{label} | {column}"
+    output = f"{label}:{column}"
 
     print(output)
 
 
 def format_histogram_key(value):
-    return '{0:.2f}'.format(value)
+    return '{0:.4f}'.format(value)
 
 
 def print_histogram(histogram):
