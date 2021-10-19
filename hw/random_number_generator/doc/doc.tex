@@ -1,0 +1,147 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[czech]{babel}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage[final]{pdfpages}
+\usepackage{syntax}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usetikzlibrary{shapes,positioning,matrix,arrows}
+
+\newcommand{\img}[1]{(viz obr. \ref{#1})}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+
+\lstdefinestyle{flex}{
+    frame=tb,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{black},
+    keywordstyle=\color{black},
+    commentstyle=\color{black},
+    stringstyle=\color{black},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3
+}
+
+\lstset{
+    frame=tb,
+    language=C,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{pgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3
+}
+
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+\begin{document}
+	% this has to be placed here, after document has been created
+	% \counterwithout{lstlisting}{chapter}
+	\renewcommand{\lstlistingname}{Ukázka kódu}
+	\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+    \begin{titlepage}
+
+        \centering
+
+        \vspace*{\baselineskip}
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=7cm]{img/fav-logo.jpg}
+        \end{figure}
+
+        \vspace*{1\baselineskip}
+
+        \vspace{0.75\baselineskip}
+
+        \vspace{0.5\baselineskip}
+        {Domácí úkol z předmětu KIV/VSS}
+
+        {\LARGE\sc Generátory náhodných čísel\\}
+        {\sc s Poissonovo rozdělením\\}
+
+        \vspace{4\baselineskip}
+
+        \vspace{0.5\baselineskip}
+
+        {\sc\Large Stanislav Král \\}
+        \vspace{0.5\baselineskip}
+        {A20N0091P}
+
+        \vfill
+
+        {\sc Západočeská univerzita v Plzni\\
+        Fakulta aplikovaných věd}
+
+    \end{titlepage}
+
+    % TOC
+    \tableofcontents
+    \pagebreak
+
+\section{Zadání}
+S využitím knihovní funkce pro generování pseudonáhodných čísel vytvořte generátor \textbf{Poissonovo} rozdělení jako funkci v jazyce Java, C, C++,Pascal/Delphi (kdy parametry rozdělení jsou zároveň parametry funkce generátoru) s využitím vhodné metody (inverzní transformace, kompoziční, vylučovací, atd.),
+
+\section{Poissonovo rozdělení}
+    Jedná se o rozdělení pravděpodobnosti, které popisuje diskrétní náhodnou veličinu vyjadřující počet výyskytů jevů v určitém intervalu, pokud jevy nastávají nezávisle na sobě a dílčí intervaly mezi jevy mají exponenciální rozdělení s parametrem 1.
+Toto rozdělení se používá k aproximaci binomického rozdělení pro velký počet pokusů a malou pravděpodobnost výskytu sledovaného jevu v jednom pokusu.
+
+    Jediným parametrem tohoto rozdělení je $\lambda$, který představuje střední hodnotu a rozptyl Poissonovo rozdělení. Tento parametr musí být z intervalu $(0, \infty)$.
+
+     Diskrétní náhodná veličina $X$ se řídí Poissonovo rozdělením, pokud s použitím parametru $\lambda > 0$ má funkce hustoty pravděpodobnosti rozdělení následující tvar:
+    \begin{displaymath}
+       \!f(k; \lambda)= \Pr(X{=}k)= \frac{\lambda^k e^{-\lambda}}{k!}
+    \end{displaymath}
+
+    \begin{figure}[!ht]
+        \centering
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.95\linewidth]{pdf/pmf.pdf}
+            \captionof{figure}{Graf hustoty ppstní. funkce}
+            \label{fig:test1}
+        \end{minipage}%
+        \begin{minipage}{.5\textwidth}
+            \centering
+            \includegraphics[width=.95\linewidth]{pdf/cdf.pdf}
+            \captionof{figure}{Graf funkce rozdělení}
+            \label{fig:test2}
+        \end{minipage}
+    \end{figure}
+
+    Praktické využití Poissonova rozdělení lze pozorovat například při modelování vytížení telefonní ústředny, modelování rizika výskytu zemětřesení nebo modelování počtu fotonů dopadajících na teleskop\footnote{Rasch, Georg (1963), \hyperlink{http://www.rasch.org/memo1963.pdf}{"The Poisson Process as a Model for a Diversity of Behavioural Phenomena"} (PDF), 17th International Congress of Psychology, 2, Washington, DC, USA, August 20th – 26th, 1963: American Psychological Association}.
+
+\end{document}    
