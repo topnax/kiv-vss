@@ -23,7 +23,7 @@ def test_distribution(distribution, n):
 
 def test_histogram():
     if len(sys.argv) == 3:
-        test_distribution(PoisonDistribution(int(sys.argv[1])), int(sys.argv[2]))
+        test_distribution(PoisonDistribution(float(sys.argv[2])), int(sys.argv[1]))
     else:
         for (i, (rate, sample)) in enumerate([(5, 10000), (9, 100000)]):
             title = f"Default test case #{i + 1} rate={rate}, n={sample}"

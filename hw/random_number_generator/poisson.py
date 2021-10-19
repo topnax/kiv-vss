@@ -7,18 +7,18 @@ class PoisonDistribution:
 
     def __init__(self, rate, e=0.000000001):
         self.rate = rate
-        self.pdf_cache = {}
+        self.pmf_cache = {}
         self.cdf_cache = {}
         self.cdf_inv_cache = {}
         self.initialize(e)
 
     def cdf(self, n):
-        # calculate the CDF by summing previous PDFs
+        # calculate the CDF by summing previous PMFs
         if n in self.cdf_cache:
             return self.cdf_cache[n]
 
-        # compute CDF by summing over PDF values
-        cdf = sum([self.pdf(k) for k in range(0, n + 1)])
+        # compute CDF by summing over PMF values
+        cdf = sum([self.pmf(k) for k in range(0, n + 1)])
 
         # store the calculated CDF to the cache
         self.cdf_cache[n] = cdf
@@ -41,19 +41,19 @@ class PoisonDistribution:
         # key of the value found, fetch it from the cache
         return self.cdf_inv_cache[min_diff_value]
 
-    def pdf(self, k):
-        # check whether the desired PDF value was already calculated
-        if k in self.pdf_cache:
-            return self.pdf_cache[k]
+    def pmf(self, k):
+        # check whether the desired PMF value was already calculated
+        if k in self.pmf_cache:
+            return self.pmf_cache[k]
         # value not present in the cache, we have to calculate it
-        pdf = self.pdf_calc(k)
+        pmf = self.pmf_calc(k)
 
         # update the cache
-        self.pdf_cache[k] = pdf
-        return pdf
+        self.pmf_cache[k] = pmf
+        return pmf
 
-    def pdf_calc(self, k):
-        # poisson PDF definition
+    def pmf_calc(self, k):
+        # poisson pmf definition
         return ((self.rate ** k) * math.exp(-self.rate)) / math.factorial(k)
 
     def initialize(self, e):
@@ -93,7 +93,7 @@ class PoisonDistribution:
 def test_poisson_distribution():
     pd = PoisonDistribution(2.5)
     for x in range(0, 5):
-        print(f"#{x} cdf:{pd.cdf(x)}, pdf:{pd.pdf(x)}")
+        print(f"#{x} cdf:{pd.cdf(x)}, pmf:{pd.pmf(x)}")
 
 
 if __name__ == "__main__":
