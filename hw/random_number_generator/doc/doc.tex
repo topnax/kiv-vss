@@ -5,7 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[pdftex]{graphicx}
-\usepackage{amsmath}
+\usepackage{amsmath, amssymb}
 \usepackage[hidelinks,unicode]{hyperref}
 \usepackage{float}
 \usepackage{listings}
@@ -16,6 +16,7 @@
 \usepackage{syntax}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{amsfonts}
 
 
 \definecolor{mauve}{rgb}{0.58,0,0.82}
@@ -143,5 +144,43 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
     \end{figure}
 
     Praktické využití Poissonova rozdělení lze pozorovat například při modelování vytížení telefonní ústředny, modelování rizika výskytu zemětřesení nebo modelování počtu fotonů dopadajících na teleskop\footnote{Rasch, Georg (1963), \hyperlink{http://www.rasch.org/memo1963.pdf}{"The Poisson Process as a Model for a Diversity of Behavioural Phenomena"} (PDF), 17th International Congress of Psychology, 2, Washington, DC, USA, August 20th – 26th, 1963: American Psychological Association}.
+
+    \newpage
+    \subsection{Střední hodnota}
+    K odvození střední hodnoty Poissonova rozdělení s parametrem $\lambda$ lze použít následující postup:
+
+
+    \begin{equation}
+        \label{whatever}
+        \begin{split}
+        \mathbb{E}(X) &= \sum_{x \mathop \in X} x\,Pr(X = x) \\
+        \mathbb{E}(X) & = \sum_{x=0}^{\infty}x\frac{\lambda^{x}}{x!}e^{-\lambda} \\
+        & = \lambda\,e^{-\lambda}\sum_{x=0}^{\infty} \frac{\lambda^{x-1}}{(x-1)!} \\
+        & = \lambda\,e^{-\lambda}e^{\lambda} \\
+        & = \lambda
+        \end{split}
+    \end{equation}
+
+    \subsection{Rozptyl}
+    K odvození rozptylu Poissonova rozdělení s parametrem $\lambda$ lze použít následující postup\footnote{dle \url{https://proofwiki.org/wiki/Variance_of_Poisson_Distribution/Proof_1}}:
+
+    \begin{equation}
+        \label{whatever}
+        \begin{split}
+            var\,(X) & = \mathbb{E} (X^2) - (\mathbb{E} (X))^2 \\
+            \mathbb{E} (X^2) &= \sum_{x \mathop \in \Omega_{X}} x^2 \, Pr(X = x) \\
+            \mathbb{E} (X^2) &= \sum_{k \mathop \ge 0} {k^2 \dfrac 1 {k!} \lambda^k e^{-\lambda} } \\
+            & = \lambda\, e^{-\lambda} \sum_{k \mathop \ge 1} {k \dfrac 1 {(k - 1)!} \lambda^{k - 1} } \\
+            & = \lambda\, e^{-\lambda} ( \sum_{k \mathop \ge 1} {(k - 1) \dfrac 1 {(k - 1)!} \lambda^{k - 1} } + \sum_{k \mathop \ge 1} {\frac 1 {(k - 1)!} \lambda^{k - 1} }  ) \\
+            & = \lambda\, e^{-\lambda} ( \lambda \sum_{k \mathop \ge 2} {\dfrac 1 {(k - 2)!} \lambda^{k - 2} } + \sum_{k \mathop \ge 1} {\dfrac 1 {(k - 1)!} \lambda^{k - 1} } ) \\
+            & = \lambda\, e^{-\lambda} ( \lambda \sum_{i \mathop \ge 0} {\dfrac 1 {i!} \lambda^i} + \sum_{j \mathop \ge 0} {\dfrac 1 {j!} \lambda^j} ) \\
+            & = \lambda\, e^{-\lambda} ( \lambda e^\lambda + e^\lambda) \\
+            & = \lambda\, e^{-\lambda} ( \lambda e^\lambda + e^\lambda) \\
+            & = \lambda^2 + \lambda \\
+            var\,(X) & = \lambda^{2} + \lambda - \lambda^{2} = \lambda \\
+        \end{split}
+    \end{equation}
+
+
 
 \end{document}    
