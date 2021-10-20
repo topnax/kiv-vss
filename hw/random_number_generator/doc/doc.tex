@@ -273,6 +273,15 @@ def rand_knuth(self):
     return k - 1
     \end{lstlisting}
 
+    \subsection{Výpočet střední hodnoty}
+    Metoda \texttt{expected\_value} pro výpočet střední hodnoty se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
+    která představuje histogram (klíče tabulky představují hodnotu a hodnoty tabulky představují četnosti hodnot dle klíče).
+
+    \begin{lstlisting}
+def expected_value(histogram):
+    total = sum(histogram.values())
+    return sum([value * frequency / total for value, frequency in histogram.items()])
+    \end{lstlisting}
 
 
 \end{document}    
