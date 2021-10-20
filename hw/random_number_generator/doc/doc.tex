@@ -49,7 +49,7 @@
 
 \lstset{
     frame=tb,
-    language=C,
+    language=Python,
     aboveskip=3mm,
     belowskip=3mm,
     showstringspaces=false,
@@ -151,7 +151,7 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
 
 
     \begin{equation}
-        \label{whatever}
+        \label{expectedvalue}
         \begin{split}
         \mathbb{E}(X) &= \sum_{x \mathop \in X} x\,Pr(X = x) \\
         \mathbb{E}(X) & = \sum_{x=0}^{\infty}x\frac{\lambda^{x}}{x!}e^{-\lambda} \\
@@ -165,7 +165,7 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
     K odvození rozptylu Poissonova rozdělení s parametrem $\lambda$ lze použít následující postup\footnote{dle \url{https://proofwiki.org/wiki/Variance_of_Poisson_Distribution/Proof_1}}:
 
     \begin{equation}
-        \label{whatever}
+        \label{variance}
         \begin{split}
             var\,(X) & = \mathbb{E} (X^2) - (\mathbb{E} (X))^2 \\
             \mathbb{E} (X^2) &= \sum_{x \mathop \in \Omega_{X}} x^2 \, Pr(X = x) \\
@@ -180,6 +180,96 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
             var\,(X) & = \lambda^{2} + \lambda - \lambda^{2} = \lambda \\
         \end{split}
     \end{equation}
+
+
+    \section{Implementace generátoru náhodných čísel}
+
+    V rámci tohoto úkolu byl naimplementován generátor náhodných čísel s Poissonovo rozdělením v jazyce Python.
+    Vytvořený program se skládá ze čtyř Python skriptů:
+    \begin{itemize}
+        \item \texttt{distribution\_tester.py} -- načtení vstupních parametrů a ověření vlastností Poissonovo rozdělení (výpočet střední hodnoty, rozptylu a sestavení histogramu)
+        \item \texttt{histogram.py} -- definice metod pro vykreslení histogramu
+        \item \texttt{poisson.py} -- implementace generátoru náhodných čísel řídících se Poissonovo rozdělením
+        \item \texttt{stat_utils.py} -- definice metod pro výpočet střední hodnoty, rozptylu a směrodatné odchylky z vytvořené řady náhodných čísel
+    \end{itemize}
+
+    \subsection{Třída \texttt{PoissonDistribution}}
+
+    Tato třída poskytuje rozhraní pro generování náhodných čísel, výpočet hodnoty funkce hustoty pravděpodobnosti a distribuční
+    funkce Poissonova rozdělení, kdy výpočet druhé zmíněné funkce je realizován pomocí sčítání hodnot funkce hustoty
+    pravděpodobnosti rozdělení.
+
+    Aby bylo možné generovat náhodná čísla řídící se Poissonovo rozdělením s využitím knihovní funkce pro generování
+    pseudonáhodných čísel, tak je třeba transformovat rovnoměrné rozdělení na intervalu $(0, 1)$ (poskytované knihovní funkcí
+    \texttt{random.uniform(0, 1)}) na Poissonovo rozdělení s vybraným parametrem $\lambda$.
+    Jelikož je Poissonovo rozdělení diskrétní, tak pro transformaci není příliš vhodné použít vylučovací metodu, avšak
+    použít lze také, jelikož je známa funkce hustoty pravděpodobnosti Poissonova rozdělení.
+    U transformace ale narážíme na problém, že výpočet distribuční funkce Poissonova rozdělení není jednoduchý, a tak je
+    třeba najít jiný způsob, jak požadované hodnoty funkce zjistit.
+
+    Pro jednoduchost byla ve vytvořeném programu použita metoda, která počítá hodnoty distribuční funkce pomocí
+    sčítání hodnot funkce hustoty (čímž provádí numerický výpočet určitého integrálu funkce hustoty).
+
+    \begin{lstlisting}
+        def cdf(self, n):
+            # calculate the CDF by summing PMF  values
+            return sum([self.pmf(k) for k in range(0, n + 1)])
+    \end{lstlisting}
+
+    \noindent Z optimalizačních důvodů se výsledky výpočtů ukládají do paměti.
+
+    Inverzní distribuční funkce je aproximována pomocí tabulky, do které se předpočítávají výsledky distribuční funkce.
+
+    Při inicializaci instance třídy \texttt{PoissonDistribution} je předpočítáváno minimálně $2.5\, \lambda$ hodnot nebo tolik
+    hodnot, kolik je třeba, aby rozdíl dvou po sobě jdoucích hodnot distribuční funkce byl menší než požadovaný rozdíl $\epsilon$.
+
+   \begin{lstlisting}
+def initialize(self, e):
+    # initialize the generator by generating initial values INV CDF values
+    diff = 1
+    last_cdf = 0
+    n = 0
+    # compute CDF values till the lambda * 2.5 values generated or till the difference
+    # before the current cdf and the previous one is smaller than a certain constant
+    while n < self.rate * 2.5 or diff > e:
+        cdf = self.cdf(n)
+        diff = abs(last_cdf - cdf)
+        last_cdf = cdf
+        n += 1
+   \end{lstlisting}
+
+    Inicializací se zajistí naplnění tabulky pro výpočet hodnot inverzní distribuční funkce. Konstanty $2.5\, \lambda$ a
+    rozdíl $\epsilon$ určují přesnost aproximace.
+
+    Výhoda této metody oproti použití vylučovací metody je ta, že doba potřebná k výpočtu požadované hodnoty distribuční funkce je
+    deterministická, nikoliv náhodná.
+
+    Generování náhodných čísel je pak realizováno následující jednoduchou metodou, kde do inverzní distrubuční funkce vstupují
+    čísla z generátoru řídícího se uniformním rozdělením $X \sim (0, 1)$:
+
+    \begin{lstlisting}
+def rand(self):
+    return self.cdf_inv(random.uniform(0, 1))
+    \end{lstlisting}
+
+    Za zmínku stojí Knuthův algoritmus\footnote{Knuth, Donald Ervin (1997), Seminumerical Algorithms, \hyperlink{https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming}{The Art of Computer Programming}, 2 (3rd ed.), Addison Wesley, ISBN 978-0-201-89684-8}, který sice negeneruje náhodná čísla v deterministickém čase, avšak jeho implementace
+    je velmi jednoduchá. Ve třídě \texttt{PoissonDistribution} je tento algoritmus implementován pomocí metody \texttt{rand\_knuth}.
+    Pro ověření tohoto generátoru pomocí skriptu \texttt{distribution_tester.py} stačí pouze přejmenovat tuto metodu na \texttt{rand}.
+
+    \begin{lstlisting}
+def rand_knuth(self):
+    # alternative random number generator following Poisson distribution implementation
+    # using Knuth's algorithm
+    l = math.exp(-self.rate)
+    p = 1.0
+    k = 0
+    while True:
+        k += 1
+        p *= random.uniform(0, 1)
+        if p <= l:
+            break
+    return k - 1
+    \end{lstlisting}
 
 
 

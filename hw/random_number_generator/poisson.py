@@ -73,6 +73,8 @@ class PoisonDistribution:
         return self.cdf_inv(random.uniform(0, 1))
 
     def rand_knuth(self):
+        # alternative random number generator following Poisson distribution implementation
+        # using Knuth's algorithm
         l = math.exp(-self.rate)
         p = 1.0
         k = 0
