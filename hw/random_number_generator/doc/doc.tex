@@ -117,7 +117,7 @@
 S využitím knihovní funkce pro generování pseudonáhodných čísel vytvořte generátor \textbf{Poissonovo} rozdělení jako funkci v jazyce Java, C, C++, Pascal/Delphi (kdy parametry rozdělení jsou zároveň parametry funkce generátoru) s využitím vhodné metody (inverzní transformace, kompoziční metoda, vylučovací metoda, atd.).
 
 \section{Poissonovo rozdělení}
-    Jedná se o rozdělení pravděpodobnosti, které popisuje diskrétní náhodnou veličinu vyjadřující počet výyskytů jevů v určitém intervalu, pokud jevy nastávají nezávisle na sobě a dílčí intervaly mezi jevy mají exponenciální rozdělení s parametrem 1.
+    Jedná se o rozdělení pravděpodobnosti, které popisuje diskrétní náhodnou veličinu vyjadřující počet výskytů jevů v určitém intervalu, pokud jevy nastávají nezávisle na sobě a dílčí intervaly mezi jevy mají exponenciální rozdělení s parametrem 1.
 Toto rozdělení se používá k aproximaci binomického rozdělení pro velký počet pokusů a malou pravděpodobnost výskytu sledovaného jevu v jednom pokusu.
 
     Jediným parametrem tohoto rozdělení je $\lambda$, který představuje střední hodnotu a rozptyl Poissonovo rozdělení. Tento parametr musí být z intervalu $(0, \infty)$.
@@ -189,13 +189,13 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
     \begin{itemize}
         \item \texttt{distribution\_tester.py} -- načtení vstupních parametrů a ověření vlastností generátoru náhodných čísel (výpočet střední hodnoty, rozptylu a sestavení histogramu),
         kdy jako první parametr přijímá velikost vzorku, který se použije pro ověření výstupu generátoru, a druhý parametr
-        použije jako parametr $\lambda$ Poissonova rozdělení.
+        se použije jako parametr $\lambda$ Poissonova rozdělení.
         \item \texttt{histogram.py} -- definice metod pro vykreslení histogramu
         \item \texttt{poisson.py} -- implementace generátoru náhodných čísel řídících se Poissonovo rozdělením
         \item \texttt{stat_utils.py} -- definice metod pro výpočet střední hodnoty, rozptylu a směrodatné odchylky z vytvořené řady náhodných čísel
     \end{itemize}
 
-    Pro jednodušší spuštění byl ještě vytvořen bash skript \texttt{poisson.sh}, který předává vstupní parametry skriptu
+    Pro jednodušší spuštění byl ještě vytvořen bash skript \texttt{run.sh}, který předává vstupní parametry skriptu
     \texttt{distribution\_tester.py}.
 
     \subsection{Třída \texttt{PoissonDistribution}}
@@ -261,8 +261,6 @@ def rand(self):
     je velmi jednoduchá. Ve třídě \texttt{PoissonDistribution} je tento algoritmus implementován pomocí metody \texttt{rand\_knuth}.
     Pro ověření tohoto generátoru pomocí skriptu \texttt{distribution_tester.py} stačí pouze přejmenovat tuto metodu na \texttt{rand}.
 
-    \pagebreak
-
     \begin{lstlisting}
 def rand_knuth(self):
     # alternative random number generator following Poisson distribution implementation
@@ -281,7 +279,7 @@ def rand_knuth(self):
     \subsection{Výpočet střední hodnoty}
     Metoda \texttt{expected\_value} pro výpočet střední hodnoty se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
     která představuje histogram (klíče tabulky představují hodnotu a hodnoty tabulky představují četnosti hodnot dle klíče).
-    Výpočet je implementací obecného vzorce pro výpočet střední hodnoty ukázaný v \ref{expectedvaluesec}.
+    Výpočet je implementací obecného vzorce pro výpočet střední hodnoty ukázaného v kapitole \ref{expectedvaluesec}.
 
     \begin{lstlisting}
 def expected_value(histogram):
@@ -293,7 +291,7 @@ def expected_value(histogram):
     Metoda \texttt{variance} pro výpočet rozptylu se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
     která představuje histogram (struktura tabulky stejná jako u předchozí metody).
     Během výpočtu volá pro zjištění střední hodnoty $\mathbb{E}(X)$ metodu \texttt{expected\_value}.
-    Výpočet je implementací obecného vzorce pro výpočet rozptylu ukázaný v \ref{variancesec}.
+    Výpočet je implementací obecného vzorce pro výpočet rozptylu ukázaného v kapitole \ref{variancesec}.
 
     \begin{lstlisting}
 def variance(histogram):
