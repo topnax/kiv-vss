@@ -252,9 +252,11 @@ def rand(self):
     return self.cdf_inv(random.uniform(0, 1))
     \end{lstlisting}
 
-    Za zmínku stojí Knuthův algoritmus\footnote{Knuth, Donald Ervin (1997), Seminumerical Algorithms, \hyperlink{https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming}{The Art of Computer Programming}, 2 (3rd ed.), Addison Wesley, ISBN 978-0-201-89684-8}, který sice negeneruje náhodná čísla v deterministickém čase, avšak jeho implementace
+    Za zmínku stojí Knuthův algoritmus\footnote{Knuth, Donald Ervin (1997), Seminumerical Algorithms, \hyperlink{https://en.wikipedia.org/wiki/The\_Art\_of\_Computer\_Programming}{The Art of Computer Programming}, 2 (3rd ed.), Addison Wesley, ISBN 978-0-201-89684-8}, který sice negeneruje náhodná čísla v deterministickém čase, avšak jeho implementace
     je velmi jednoduchá. Ve třídě \texttt{PoissonDistribution} je tento algoritmus implementován pomocí metody \texttt{rand\_knuth}.
     Pro ověření tohoto generátoru pomocí skriptu \texttt{distribution_tester.py} stačí pouze přejmenovat tuto metodu na \texttt{rand}.
+
+    \pagebreak
 
     \begin{lstlisting}
 def rand_knuth(self):
