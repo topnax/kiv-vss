@@ -146,7 +146,7 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
     Praktické využití Poissonova rozdělení lze pozorovat například při modelování vytížení telefonní ústředny, modelování rizika výskytu zemětřesení nebo modelování počtu fotonů dopadajících na teleskop\footnote{Rasch, Georg (1963), \hyperlink{http://www.rasch.org/memo1963.pdf}{"The Poisson Process as a Model for a Diversity of Behavioural Phenomena"} (PDF), 17th International Congress of Psychology, 2, Washington, DC, USA, August 20th – 26th, 1963: American Psychological Association}.
 
     \newpage
-    \subsection{Střední hodnota}
+    \subsection{Střední hodnota} \label{expectedvaluesec}
     K odvození střední hodnoty Poissonova rozdělení s parametrem $\lambda$ lze použít následující postup:
 
 
@@ -161,7 +161,7 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
         \end{split}
     \end{equation}
 
-    \subsection{Rozptyl}
+    \subsection{Rozptyl} \label{variancesec}
     K odvození rozptylu Poissonova rozdělení s parametrem $\lambda$ lze použít následující postup\footnote{dle \url{https://proofwiki.org/wiki/Variance_of_Poisson_Distribution/Proof_1}}:
 
     \begin{equation}
@@ -276,6 +276,7 @@ def rand_knuth(self):
     \subsection{Výpočet střední hodnoty}
     Metoda \texttt{expected\_value} pro výpočet střední hodnoty se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
     která představuje histogram (klíče tabulky představují hodnotu a hodnoty tabulky představují četnosti hodnot dle klíče).
+    Výpočet je implementací obecného vzorce pro výpočet střední hodnoty ukázaný v \ref{expectedvaluesec}.
 
     \begin{lstlisting}
 def expected_value(histogram):
@@ -287,6 +288,7 @@ def expected_value(histogram):
     Metoda \texttt{variance} pro výpočet rozptylu se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
     která představuje histogram (klíče tabulky představují hodnotu a hodnoty tabulky představují četnosti hodnot dle klíče).
     Během výpočtu volá pro zjištění střední hodnoty $\mathbb{E}(X)$ metodu \texttt{expected\_value}.
+    Výpočet je implementací obecného vzorce pro výpočet rozptylu ukázaný v \ref{variancesec}.
 
     \begin{lstlisting}
 def variance(histogram):
