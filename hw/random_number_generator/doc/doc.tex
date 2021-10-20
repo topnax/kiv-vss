@@ -114,7 +114,7 @@
     \pagebreak
 
 \section{Zadání}
-S využitím knihovní funkce pro generování pseudonáhodných čísel vytvořte generátor \textbf{Poissonovo} rozdělení jako funkci v jazyce Java, C, C++,Pascal/Delphi (kdy parametry rozdělení jsou zároveň parametry funkce generátoru) s využitím vhodné metody (inverzní transformace, kompoziční, vylučovací, atd.),
+S využitím knihovní funkce pro generování pseudonáhodných čísel vytvořte generátor \textbf{Poissonovo} rozdělení jako funkci v jazyce Java, C, C++, Pascal/Delphi (kdy parametry rozdělení jsou zároveň parametry funkce generátoru) s využitím vhodné metody (inverzní transformace, kompoziční metoda, vylučovací metoda, atd.).
 
 \section{Poissonovo rozdělení}
     Jedná se o rozdělení pravděpodobnosti, které popisuje diskrétní náhodnou veličinu vyjadřující počet výyskytů jevů v určitém intervalu, pokud jevy nastávají nezávisle na sobě a dílčí intervaly mezi jevy mají exponenciální rozdělení s parametrem 1.
@@ -282,6 +282,17 @@ def expected_value(histogram):
     total = sum(histogram.values())
     return sum([value * frequency / total for value, frequency in histogram.items()])
     \end{lstlisting}
+    
+    \subsection{Výpočet rozptylu}
+    Metoda \texttt{variance} pro výpočet rozptylu se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
+    která představuje histogram (klíče tabulky představují hodnotu a hodnoty tabulky představují četnosti hodnot dle klíče).
+    Během výpočtu volá pro zjištění střední hodnoty $\mathbb{E}(X)$ metodu \texttt{expected\_value}.
 
+    \begin{lstlisting}
+def variance(histogram):
+    ev = expected_value(histogram)
+    total = sum(histogram.values())
+    return sum([((value - ev) ** 2) * (frequency / total) for value, frequency in histogram.items()])
+    \end{lstlisting}
 
-\end{document}    
+    \end{document}
