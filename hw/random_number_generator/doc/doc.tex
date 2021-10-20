@@ -184,14 +184,19 @@ Toto rozdělení se používá k aproximaci binomického rozdělení pro velký 
 
     \section{Implementace generátoru náhodných čísel}
 
-    V rámci tohoto úkolu byl naimplementován generátor náhodných čísel s Poissonovo rozdělením v jazyce Python.
+    V rámci tohoto úkolu byl naimplementován generátor náhodných čísel s Poissonovo rozdělením v jazyce Python (verze 3).
     Vytvořený program se skládá ze čtyř Python skriptů:
     \begin{itemize}
-        \item \texttt{distribution\_tester.py} -- načtení vstupních parametrů a ověření vlastností Poissonovo rozdělení (výpočet střední hodnoty, rozptylu a sestavení histogramu)
+        \item \texttt{distribution\_tester.py} -- načtení vstupních parametrů a ověření vlastností generátoru náhodných čísel (výpočet střední hodnoty, rozptylu a sestavení histogramu),
+        kdy jako první parametr přijímá velikost vzorku, který se použije pro ověření výstupu generátoru, a druhý parametr
+        použije jako parametr $\lambda$ Poissonova rozdělení.
         \item \texttt{histogram.py} -- definice metod pro vykreslení histogramu
         \item \texttt{poisson.py} -- implementace generátoru náhodných čísel řídících se Poissonovo rozdělením
         \item \texttt{stat_utils.py} -- definice metod pro výpočet střední hodnoty, rozptylu a směrodatné odchylky z vytvořené řady náhodných čísel
     \end{itemize}
+
+    Pro jednodušší spuštění byl ještě vytvořen bash skript \texttt{poisson.sh}, který předává vstupní parametry skriptu
+    \texttt{distribution\_tester.py}.
 
     \subsection{Třída \texttt{PoissonDistribution}}
 
@@ -286,7 +291,7 @@ def expected_value(histogram):
     
     \subsection{Výpočet rozptylu}
     Metoda \texttt{variance} pro výpočet rozptylu se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
-    která představuje histogram (klíče tabulky představují hodnotu a hodnoty tabulky představují četnosti hodnot dle klíče).
+    která představuje histogram (struktura tabulky stejná jako u předchozí metody).
     Během výpočtu volá pro zjištění střední hodnoty $\mathbb{E}(X)$ metodu \texttt{expected\_value}.
     Výpočet je implementací obecného vzorce pro výpočet rozptylu ukázaný v \ref{variancesec}.
 
@@ -296,5 +301,93 @@ def variance(histogram):
     total = sum(histogram.values())
     return sum([((value - ev) ** 2) * (frequency / total) for value, frequency in histogram.items()])
     \end{lstlisting}
+
+    \subsection{Výpočet směrodatné odchylky}
+    Metoda \texttt{standard\_deviation} pro výpočet směrodatné odhylky se nachází ve skriptu \texttt{stat\_utils.py}, kdy jako parametr očekává tabulku,
+    která představuje histogram (struktura stejná jako u předchozí metody).
+
+    Výpočet je implementací obecného vzorce pro výpočet směrodatné odchylky.
+    
+    \section{Výsledky implementovaného generátoru}
+
+    Následující text obsahuje výstup programu\footnote{kombinace se použijí, pokud je testovací skript spuštěn bez povinných parametrů} během testování generátoru náhodných čísel pro následující kombinace parametrů:
+
+    \begin{enumerate}
+        \item Velikost testovacího vzorku: \texttt{10000}, $\lambda=5$
+        \item Velikost testovacího vzorku: \texttt{100000}, $\lambda=9$
+    \end{enumerate}
+
+    \begin{lstlisting}[basicstyle=\tiny]
+Default test case #1 rate=5, n=10000
+------------------------------------
+E_teorie=5
+D_teorie=5
+E_vypocet=5.0063
+D_vypocet=5.03586031
+
+HISTOGRAM
+0.0000 :***
+1.0000 :**********
+2.0000 :************************
+3.0000 :**************************************
+4.0000 :*************************************************
+5.0000 :***************************************************
+6.0000 :*****************************************
+7.0000 :******************************
+8.0000 :******************
+9.0000 :**********
+10.0000:******
+11.0000:***
+12.0000:**
+13.0000:*
+14.0000:*
+15.0000:*
+
+Default test case #2 rate=9, n=100000
+-------------------------------------
+E_teorie=9
+D_teorie=9
+E_vypocet=8.99288
+D_vypocet=8.9687293056
+
+HISTOGRAM
+0.0000 :*
+1.0000 :*
+2.0000 :**
+3.0000 :******
+4.0000 :*************
+5.0000 :************************
+6.0000 :***********************************
+7.0000 :*********************************************
+8.0000 :***************************************************
+9.0000 :**************************************************
+10.0000:*********************************************
+11.0000:*************************************
+12.0000:****************************
+13.0000:********************
+14.0000:*************
+15.0000:********
+16.0000:*****
+17.0000:***
+18.0000:*
+19.0000:*
+20.0000:*
+21.0000:*
+22.0000:*
+23.0000:*
+24.0000:*
+25.0000:*
+    \end{lstlisting}
+
+    Z výsledků testování lze pozorovat, že dochází k očekávané odchylce od teoretické střední hodnoty a rozptylu, která je způsobena
+    aproximací inverzní distribuční funkce, výstupem pseudonáhodného generátoru \texttt{random.uniform} a hlavně tím,
+    že velikost testovacího vzorku se limitně neblíží k nekonečnu. Mezi další faktory, které ovlivňují velikost odchylky,
+    určitě patří i skutečnost, že procesory mají pouze omezenou přesnost při počítání s desetinnými čísly.
+
+    Generování náhodných čísel je díky zvolené implementaci deterministické, a tak by bylo možné ho použít např. pro
+    systémy, kde je tato vlastnost požadovaná.
+
+    Odchylky od očekávaných hodnot nejsou příliš velké a i při pohledu na zobrazený histogram lze konstatovat, že
+    výstup generátoru je možné modelovat Poissonovo rozdělením, čímž je splněno zadání domácího úkolu.
 
     \end{document}
