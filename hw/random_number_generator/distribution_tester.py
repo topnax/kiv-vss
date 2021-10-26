@@ -12,10 +12,14 @@ def test_distribution(distribution, n):
         p = distribution.rand()
         histogram[p] = histogram.get(p, 0) + 1
 
+    total = sum(histogram.values())
+    ev = expected_value(histogram, total)
+    var = variance(histogram, ev, total)
+
     print(f"E_teorie={distribution.expected_value()}")
     print(f"D_teorie={distribution.variance()}")
-    print(f"E_vypocet={expected_value(histogram)}")
-    print(f"D_vypocet={variance(histogram)}")
+    print(f"E_vypocet={ev}")
+    print(f"D_vypocet={var}")
     print()
     print("HISTOGRAM")
     print_histogram(histogram)
