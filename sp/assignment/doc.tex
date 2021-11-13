@@ -17,6 +17,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsfonts}
+\usepackage{wrapfig}
 
 
 \definecolor{mauve}{rgb}{0.58,0,0.82}
@@ -114,6 +115,11 @@
 
 \section{Introduction}
 
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \centering
+    \includegraphics[width=.38\textwidth]{img/dotypay-payment-terminal.png}
+\end{wrapfigure}
+
 Dotypay\footnote{\url{https://dotypay.com/}} is a product that allows merchants to interface with payment cards to make electronic funds transfers via a payment terminal it offers.
 The terminal is a mobile device running an Android OS with a built-in chip and contactless card reader with the support of magnetic stripe cards.
 The fact that the terminal is running an Android OS means that it allows for utilization of various cash register applications that can be installed directly on the terminal. 
@@ -131,6 +137,40 @@ The terminal comes with two preinstalled applications: Dotypay and Dotypay Launc
 Configuration and management of terminals happens on a dedicated web application, and is also accessible to merchants to view transaction history and analytics and other useful insights of made turn overs.
 
 Dotypay also claims to charge smaller transaction fees than other payment processing products in the market.
+
+
+\section{Dotypay Portal server}
+
+As mentioned in the introduction Dotypay payment terminals have to retrieve their configuration from a remote server (Dotypay Portal) in order to be functioning properly. 
+The Dotypay Portal server is the subject to be put under a test in order to investigate its capability to handle terminal requests.
+
+The main component of the server is a Java application based on the Spring Boot framework that is dependent on following components:
+
+\begin{itemize}
+    \item \textbf{MS SQL database} -- main database used for persisting merchant data and terminal configuration,
+    \item \textbf{Mongo database}  -- secondary database used to store transactions performed by terminals,
+    \item \textbf{Amazon S3 storage}  -- object storage service for storing installation packages of terminal application as well as any merchant documents,
+    \item \textbf{Amazon SQS} -- a queue service used for submitting transaction requests to the terminal,
+    \item \textbf{SMTP server} -- a mail server for communication with merchants,
+    \item and \textbf{Eddie TMS} -- a terminal management system by Monet+\footnote{Part of the EMV Payments service \url{https://www.monetplus.cz/emv-payments}}
+\end{itemize}
+
+It also dependent on other components such as online web application Rejstřík\footnote{\url{www.rejstrik.cz}}, MailChimp and OTRS.
+
+\subsection{Hardware specification}
+At the time of writing this document the Spring Boot application runs on an AWS node (2 vCPU and 4GB RAM plan), while the MS SQL database runs on another AWS node (2 vCPU and 2GB RAM plan).
+Hardware configuration of other Amazon components is not known as they are supposed to be automatically scaled based on usage load as Amazon claims. The remaining components are not directly managed by Dotypay so their configuration is also not known. 
+
+\subsection{Terminal synchronization with Dotypay Portal}
+The Dotypay Launcher application that comes preinstalled on the payment terminals is responsible for periodically checking the Dotypay Portal server for terminal configuration. It does so by creating an HTTP request to the REST API interface of the server every 15 minutes with addition of a random delay up to 5 minutes.
+
+During the processing of the synchronization request the server has to query the database for the terminal configuration. After querying the database the server responds with the configuration data. 
+
+If the configuration contains any mandatory applications the terminal then proceeds to download installation packages from the server. The installation package data is fed to the terminal from the Amazon S3 storage.
+
+In the past there has been a case where upon updating a version of a mandatory application in the Dotypay Portal a great number number of terminals after fetching the latest configuration started to download the installation package. 
+This load on the server resulted in its instability and increased response time as well as failed package downloads across most of the terminals. 
+
 
 
 \end{document}
