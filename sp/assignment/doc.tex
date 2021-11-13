@@ -115,9 +115,10 @@
 
 \section{Introduction}
 
-\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{wrapfigure}{r}{0.38\textwidth}
     \centering
-    \includegraphics[width=.38\textwidth]{img/dotypay-payment-terminal.png}
+    \includegraphics[width=.37\textwidth]{img/dotypay-payment-terminal.png}
+    \captionof{figure}{Dotypay product landing page image}
 \end{wrapfigure}
 
 Dotypay\footnote{\url{https://dotypay.com/}} is a product that allows merchants to interface with payment cards to make electronic funds transfers via a payment terminal it offers.
@@ -168,9 +169,22 @@ During the processing of the synchronization request the server has to query the
 
 If the configuration contains any mandatory applications the terminal then proceeds to download installation packages from the server. The installation package data is fed to the terminal from the Amazon S3 storage.
 
-In the past there has been a case where upon updating a version of a mandatory application in the Dotypay Portal a great number number of terminals after fetching the latest configuration started to download the installation package. 
+In the past there has been a case where upon updating a version of a mandatory application in the Dotypay Portal a great number number of terminals after fetching the latest configuration started to download the application installation package at once. 
 This load on the server resulted in its instability and increased response time as well as failed package downloads across most of the terminals. 
 
+\subsection{Submission of a performed transaction}
+Each transaction that is performed on the terminal is submitted to the server so that the history of transactions is preserved and can be viewed at later date elsewhere than in the terminal itself.
+The transaction data is also used for creating insightful reports of merchant sales.
+
+All transactions are submitted to the server even if they haven't been finished successfully (e.g. transaction declined by card scheme).
+
+When the server receives a request to store an incoming transaction it performs only a minor processing and forwards the transaction to a MongoDB database instance, which is currently being implemented by a MongoDB Atlas service at Amazon.
+
+The payment terminal is currently not capable of processing transactions when the connection to the Internet is not available, which means that a batch of multiple transactions coming from a single terminal to be stored in the database is not expected. 
+
+As the number of merchants using the Dotypay product is continously increasing, the volume of transactions is following this trend.
+Various spikes have been observed in the past in regards of the total transaction volume and count, however, no reports of service degradation have been reported so far.
+For example, such spikes can be seen days before holidays, during lunch-time or after the usual time people finish their shift at work. During the rest of the day the usage of the server is somewhat evenly distributed, with the number of transactions slowly decreasing as night time comes by. In the early morning it eventually starts to increase again.
 
 
 \end{document}
