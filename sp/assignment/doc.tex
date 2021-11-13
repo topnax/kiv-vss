@@ -1,0 +1,137 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage[final]{pdfpages}
+\usepackage{syntax}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsfonts}
+
+
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usetikzlibrary{shapes,positioning,matrix,arrows}
+
+\newcommand{\img}[1]{(viz obr. \ref{#1})}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+
+\lstdefinestyle{flex}{
+    frame=tb,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{black},
+    keywordstyle=\color{black},
+    commentstyle=\color{black},
+    stringstyle=\color{black},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3
+}
+
+\lstset{
+    frame=tb,
+    language=Python,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{pgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3
+}
+
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+\begin{document}
+	% this has to be placed here, after document has been created
+	% \counterwithout{lstlisting}{chapter}
+	\renewcommand{\lstlistingname}{Ukázka kódu}
+	\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+    \begin{titlepage}
+
+        \centering
+
+        \vspace*{\baselineskip}
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=7cm]{img/fav-logo.jpg}
+        \end{figure}
+
+        \vspace*{1\baselineskip}
+
+        \vspace{0.75\baselineskip}
+
+        \vspace{0.5\baselineskip}
+        {KIV/VSS Semester Project Assignment}
+
+        {\LARGE\sc Benchmarking A Payment Terminal Managemenent Server \\}
+
+        \vspace{4\baselineskip}
+
+        \vspace{0.5\baselineskip}
+
+        {\sc\Large Stanislav Král \\}
+        \vspace{0.5\baselineskip}
+        {A20N0091P}
+
+        \vfill
+
+        {\sc Západočeská univerzita v Plzni\\
+        Fakulta aplikovaných věd}
+
+    \end{titlepage}
+
+    % TOC
+    \tableofcontents
+    \pagebreak
+
+\section{Introduction}
+
+Dotypay\footnote{\url{https://dotypay.com/}} is a product that allows merchants to interface with payment cards to make electronic funds transfers via a payment terminal it offers.
+The terminal is a mobile device running an Android OS with a built-in chip and contactless card reader with the support of magnetic stripe cards.
+The fact that the terminal is running an Android OS means that it allows for utilization of various cash register applications that can be installed directly on the terminal. 
+This reduces the number of devices the merchant has to operate in order to process customer orders to just a single all-in-one device.
+
+The terminal comes with two preinstalled applications: Dotypay and Dotypay Launcher. The former is used for creating and processing payment, preauthorization and return transactations with the ability to preview the transaction and settlement history. The latter is used for device configuration which consists of following tasks:
+
+\begin{itemize}
+    \item \textbf{cryptographic keys setup} -- in order to securely process card payment transactions the terminal must be properly configured in the means of having all required cryptographic keys securely stored in the device storage,
+    \item \textbf{merchant personalisation} -- configuration of the terminal based on the merchant it belongs to (currency code, country code,...),
+    \item and \textbf{maintenance of the software installed} -- periodically check whether there are updates available to the installed software such as payment application, terminal firmware or cash register application.
+
+\end{itemize}
+
+Configuration and management of terminals happens on a dedicated web application, and is also accessible to merchants to view transaction history and analytics and other useful insights of made turn overs.
+
+Dotypay also claims to charge smaller transaction fees than other payment processing products in the market.
+
+
+\end{document}
+
