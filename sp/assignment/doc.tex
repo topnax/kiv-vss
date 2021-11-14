@@ -123,19 +123,19 @@
 
 Dotypay\footnote{\url{https://dotypay.com/}} is a product that allows merchants to interface with payment cards to make electronic funds transfers via a payment terminal it offers.
 The terminal is a mobile device running an Android OS with a built-in chip and contactless card reader with the support of magnetic stripe cards.
-The fact that the terminal is running an Android OS means that it allows for utilization of various cash register applications that can be installed directly on the terminal. 
+The fact that the terminal is running an Android OS means that it allows for the utilization of various cash register applications that can be installed directly on the terminal. 
 This reduces the number of devices the merchant has to operate in order to process customer orders to just a single all-in-one device.
 
-The terminal comes with two preinstalled applications: Dotypay and Dotypay Launcher. The former is used for creating and processing payment, preauthorization and return transactations with the ability to preview the transaction and settlement history. The latter is used for device configuration which consists of following tasks:
+The terminal comes with two preinstalled applications: Dotypay and Dotypay Launcher. The former is used for creating and processing payment, preauthorization and return transactions with the ability to preview the transaction and settlement history. The latter is used for device configuration which consists of the following tasks:
 
 \begin{itemize}
     \item \textbf{cryptographic keys setup} -- in order to securely process card payment transactions the terminal must be properly configured in the means of having all required cryptographic keys securely stored in the device storage,
-    \item \textbf{merchant personalisation} -- configuration of the terminal based on the merchant it belongs to (currency code, country code,...),
+    \item \textbf{merchant personalization} -- configuration of the terminal based on the merchant it belongs to (currency code, country code,...),
     \item and \textbf{maintenance of the software installed} -- periodically check whether there are updates available to the installed software such as payment application, terminal firmware or cash register application.
 
 \end{itemize}
 
-Configuration and management of terminals happens on a dedicated web application, and is also accessible to merchants to view transaction history, analytics and other useful insights of made turn overs.
+Configuration and management of terminals happens on a dedicated web application, and is also accessible to merchants to view transaction history, analytics and other useful insights of made turnovers.
 
 Dotypay also claims to charge smaller transaction fees than other payment processing products in the market.
 
@@ -143,9 +143,9 @@ Dotypay also claims to charge smaller transaction fees than other payment proces
 \section{Dotypay Portal server}
 
 As mentioned in the introduction Dotypay payment terminals have to retrieve their configuration from a remote server (Dotypay Portal) in order to be functioning properly. 
-The Dotypay Portal server is the subject to be put under a test in order to investigate its capability to handle terminal requests.
+The Dotypay Portal server is the subject to be put under a test to investigate its capability to handle terminal requests.
 
-The main component of the server is a Java application based on the Spring Boot framework that is dependent on following components:
+The main component of the server is a Java application based on the Spring Boot framework that is dependent on the following components:
 
 \begin{itemize}
     \item \textbf{MS SQL database} -- main database used for persisting merchant data and terminal configuration,
@@ -156,22 +156,22 @@ The main component of the server is a Java application based on the Spring Boot 
     \item and \textbf{Eddie TMS} -- a terminal management system by Monet+\footnote{Part of the EMV Payments service \url{https://www.monetplus.cz/emv-payments}}
 \end{itemize}
 
-It also dependent on other components such as online web application Rejstřík\footnote{\url{www.rejstrik.cz}}, MailChimp and OTRS.
+It also depends on other components such as online web application Rejstřík\footnote{\url{www.rejstrik.cz}}, MailChimp and OTRS.
 
 \subsection{Hardware specification}
-At the time of writing this document the Spring Boot application runs on an AWS node (2 vCPU and 4GB RAM plan), while the MS SQL database runs on another AWS node (2 vCPU and 2GB RAM plan).
-Hardware configuration of other Amazon components is not known as they are supposed to be automatically scaled based on usage load as Amazon claims. The remaining components are not directly managed by Dotypay so their configuration is also not known. 
+At the time of writing this document, the Spring Boot application runs on an AWS node (2 vCPU and 4GB RAM plan), while the MS SQL database runs on another AWS node (2 vCPU and 2GB RAM plan).
+The hardware configuration of other Amazon components is not known as they are supposed to be automatically scaled based on usage load as Amazon claims. The remaining components are not directly managed by Dotypay so their configuration is also not known. 
 
 For the purposes of benchmarking a new instance of the server running on the same architecture will be made available to the student.
 
 \subsection{Terminal synchronization with Dotypay Portal}
-The Dotypay Launcher application that comes preinstalled on the payment terminals is responsible for periodically checking the Dotypay Portal server for terminal configuration. It does so by creating an HTTP request to the REST API interface of the server every 15 minutes with addition of a random delay up to 5 minutes.
+The Dotypay Launcher application that comes preinstalled on the payment terminals is responsible for periodically checking the Dotypay Portal server for terminal configuration. It does so by creating an HTTP request to the REST API interface of the server every 15 minutes with the addition of a random delay up to 5 minutes.
 
-During the processing of the synchronization request the server has to query the database for the terminal configuration. After querying the database the server responds with the configuration data. 
+During the processing of the synchronization request, the server has to query the database for the terminal configuration. After querying the database the server responds with the configuration data. 
 
 If the configuration contains any mandatory applications or updates the terminal then proceeds to download installation packages from the server. The installation package data is fed to the terminal from the Amazon S3 storage.
 
-In the past there has been a case where upon updating a version of a mandatory application in the Dotypay Portal a great number of terminals after fetching the latest configuration started to download the application installation package at once. 
+In the past, there has been a case whereupon updating a version of a mandatory application in the Dotypay Portal a great number of terminals after fetching the latest configuration started to download the application installation package at once. 
 This load on the server resulted in its instability and increased response time as well as failed package downloads across most of the terminals. 
 
 \subsection{Submission of a performed transaction}
@@ -180,17 +180,18 @@ The transaction data is also used for creating insightful reports of merchant sa
 
 All transactions are submitted to the server even if they haven't been finished successfully (e.g. transaction declined by a card scheme).
 
-When the server receives a request to store an incoming transaction it performs only a minor processing and forwards the transaction to a MongoDB database instance, which is currently being implemented by a MongoDB Atlas service at Amazon.
+When the server receives a request to store an incoming transaction it performs only minor processing and forwards the transaction to a MongoDB database instance, which is currently being implemented by a MongoDB Atlas service at Amazon.
 
 The payment terminal is currently not capable of processing transactions when the connection to the Internet is not available, which means that a batch of multiple transactions coming from a single terminal to be stored in the database is not expected. 
 
-As the number of merchants using the Dotypay product is continously increasing, the volume of transactions is following this trend.
-Various spikes have been observed in the past in regards of the total transaction volume and count, however, no reports of service degradation have been reported so far.
-For example, such spikes can be seen days before holidays, during lunch-time or after the usual time people finish their shift at work. During the rest of the day the usage of the server is somewhat evenly distributed, with the number of transactions slowly decreasing as night time comes by. In the early morning it eventually starts to increase again.
+As the number of merchants using the Dotypay product is continuously increasing, the volume of transactions is following this trend.
+Various spikes have been observed in the past in regards to the total transaction volume and count, however, no reports of service degradation have been reported so far.
+For example, such spikes can be seen days before holidays, during lunchtime or after the usual time people finish their shift at work. During the rest of the day the usage of the server is somewhat evenly distributed, with the number of transactions slowly decreasing as nighttime comes by. 
+In the early morning, it eventually starts to increase again.
 
 \section{Benchmark scenarios}
 
-An important question to ask is how many active terminals is the Dotypay Portal going to be able to manage without having to dramatically decrease the quality of the service. To attempt answering this question three benchmark scenarios have been proposed:
+An important question to ask is how many active terminals is the Dotypay Portal going to be able to manage without having to dramatically decrease the quality of the service. To attempt to answer this question three benchmark scenarios have been proposed:
 
 
 \subsection{Terminal configuration synchronization}
@@ -200,31 +201,31 @@ This scenario requests a certain number of terminals to be added to the database
 Requests created during the benchmark do not require to be filled with data as the server does not require any. 
 
 \subsection{Submission of performed transactions}
-This scenario simulates submission of transactions in isolation from other tasks. Similarly as the previous scenario this scenario attempts to find the limit may be to the number of terminals whose requests the server can handle.
+This scenario simulates a submission of transactions in isolation from other tasks. Similarly to the previous scenario, this scenario attempts to find the limit may be to the number of terminals whose requests the server can handle.
 
-Before performing the benchmark a certain amount transaction data has to be acquired or randomly generated as each transaction submission request has to include a transaction to be stored. 
+Before performing the benchmark a certain amount of transaction data has to be acquired or randomly generated as each transaction submission request has to include a transaction to be stored. 
 
 \subsection{Transaction and synchronization requests}
-The third scenario is a combination of the previous two scenarios in attempt to better model the reality. 
+The third scenario is a combination of the previous two scenarios in an attempt to better model the reality. 
 
 \section{Useful software for benchmarking}
 The following software may be useful during the benchmarking of the server:
 
 \begin{itemize}
-   \item \textbf{Apache JMeter}\footnote{\url{http://jmeter.apache.org/}} -- a Java application designed to load functional behavior and measure performance primarly of web applications,
+   \item \textbf{Apache JMeter}\footnote{\url{http://jmeter.apache.org/}} -- a Java application designed to load functional behavior and measure performance primarily of web applications,
    \item \textbf{k6}\footnote{\url{https://k6.io/}} -- an alternative to the Apache JMeter that allows for writing load tests of REST APIs in the Javascript language,
-   \item and \textbf{Python programming language} -- some simple benchmark scenarios can be implemented by writing a group of Python scripts as the Python language offers an expressive grammar.
+   \item and \textbf{Python programming language} -- some simple benchmark scenarios can be implemented by writing a group of Python scripts as the Python language offers expressive grammar.
 \end{itemize}
 
 Additional software may be used to generate sample data to be used before and during benchmarking.
 
-Also, if the mentioned software is insufficient in regards of achieving useful results other benchmarking tools may be looked for.
+Also, if the mentioned software is insufficient in regards to achieving useful results other benchmarking tools may be looked for.
 
 \section{Summary}
 The proposed benchmark scenarios will be implemented and run in order to make an attempt to discover the limit that there may be to the number of devices the server can handle. 
-These results may eventually be used by the development team at Dotypay in order to eliminate any critical bottlenecks or performance issues that may be discovered.
+These results may eventually be used by the development team at Dotypay to eliminate any critical bottlenecks or performance issues that may be discovered.
 
-It is expected that the available hardware for running benchmark scenarios may not fully be able to put enough stress on the server and thus only a subtle increase of server response time will be observed.
+It is expected that the available hardware for running benchmark scenarios may not fully be able to put enough stress on the server and thus only a subtle increase in server response time will be observed.
 
 Due to the fact that the scenarios do not cover any CPU demanding tasks (the server itself does not do any) it should be the database that becomes the main bottleneck. However, because the MongoDB database will be provided by the Amazon platform it may not be that case.
 
