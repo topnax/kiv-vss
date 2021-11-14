@@ -165,7 +165,7 @@ The hardware configuration of other Amazon components is not known as they are s
 For the purposes of benchmarking a new instance of the server running on the same architecture will be made available to the student.
 
 \subsection{Terminal synchronization with Dotypay Portal}
-The Dotypay Launcher application that comes preinstalled on the payment terminals is responsible for periodically checking the Dotypay Portal server for terminal configuration. It does so by creating an HTTP request to the REST API interface of the server every 15 minutes with the addition of a random delay up to 5 minutes.
+The Dotypay Launcher application that comes preinstalled on payment terminals is responsible for periodically checking the Dotypay Portal server for terminal configuration. It does so by creating an HTTP request to the REST API interface of the server every 15 minutes with the addition of a random delay up to 5 minutes.
 
 During the processing of the synchronization request, the server has to query the database for the terminal configuration. After querying the database the server responds with the configuration data. 
 
