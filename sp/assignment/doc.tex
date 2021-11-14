@@ -191,8 +191,7 @@ In the early morning, it eventually starts to increase again.
 
 \section{Benchmark scenarios}
 
-An important question to ask is how many active terminals is the Dotypay Portal going to be able to manage without having to dramatically decrease the quality of the service. To attempt to answer this question three benchmark scenarios have been proposed:
-
+An important question to ask is how many active terminals is the Dotypay Portal going to be able to manage without having to dramatically decrease the quality of the service. To attempt to answer this question three benchmark scenarios have been proposed.
 
 \subsection{Terminal configuration synchronization}
 The purpose of this scenario is to gain knowledge about the limit there may be to the number of terminals whose synchronization requests the server can handle in a short period of time. This scenario is based on the fact that terminals periodically ask the server for the latest version of terminal configuration. 
@@ -208,10 +207,23 @@ Before performing the benchmark a certain amount of transaction data has to be a
 \subsection{Transaction and synchronization requests}
 The third scenario is a combination of the previous two scenarios in an attempt to better model the reality. 
 
-\section{Useful software for benchmarking}
-The following software may be useful during the benchmarking of the server:
+\section{Benchmarking web applications}
+Today's developers rely on technologies that, with a minimum effort, can guarantee some decent results in terms of performance.
+Concurrency and thread management is managed by modern web frameworks without requiring much effort from developers. 
+However, even with these tools, it is still required to own the responsibility of writing good and optimized code.
+Due to the pressure put on developers to ship software as fast as possible this is sometimes overlooked and various problems pop up when the software is published to the production.
+Even a relatively small peak, if the server is not properly configured, may be able to crash the whole application and ruin its credibility.
+
+To make web applications scale easier, various cloud service providers such as Amazon and Google have started to offer serverless technologies such as \textbf{PaaS} (Platform as a Service), \textbf{BaaS} (Backend as a Service) and \textbf{FaaS} (Function as a Service).
+These technologies may help to improve the ability of web applications to behave correctly during higher loads, but nevertheless, it is still critical to have at least a basic knowledge of the properties and limits of the service we are running. 
+
+Discovering properties and limits of a web application is done by running benchmark tests on exposed interfaces of the applications and often requires them to be run in isolation from the outer environment so that the tests are repeatable and not biased.
+
+\subsection{Useful software}
+The following software may be useful during the benchmarking of web applications:
 
 \begin{itemize}
+    \item \textbf{ab}\footnote{\url{https://httpd.apache.org/docs/2.4/programs/ab.html}}  -- a simple tool for benchmarking HTTP servers developed by Apache
    \item \textbf{Apache JMeter}\footnote{\url{http://jmeter.apache.org/}} -- a Java application designed to load functional behavior and measure performance primarily of web applications,
    \item \textbf{k6}\footnote{\url{https://k6.io/}} -- an alternative to the Apache JMeter that allows for writing load tests of REST APIs in the Javascript language,
    \item and \textbf{Python programming language} -- some simple benchmark scenarios can be implemented by writing a group of Python scripts as the Python language offers expressive grammar.
