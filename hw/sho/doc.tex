@@ -17,6 +17,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsfonts}
+\usepackage{siunitx}
 
 
 \definecolor{mauve}{rgb}{0.58,0,0.82}
@@ -126,7 +127,79 @@ Pro zadanou otevřenou síť front vypočítejte odhad hodnot $L_q$ a $T_q$.
 
 \section{Vypracování}
 
+Nejprve si zvolíme směrodatné odchylky doby obsluhy tak, aby koeficient variace byl zhruba 0.5 (dle zadání):
 
+\begin{equation}
+    \begin{split}
+    & \sigma_{s1} = 0.5 \\
+    & C_{s1} =  \frac{\sigma_{s1}}{T_{s1}} = \frac{0.5}{1} = 0.5 \\
+    & \\
+    & \sigma_{s2} = 0.665 \\
+    & C_{s2} =  \frac{\sigma_{s2}}{T_{s2}} = \frac{0.665}{1.33} = 0.5 \\
+    \end{split}
+\end{equation}
+
+Poté vypočteme vnitřní frekvence toků v uzlech:
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.65\linewidth]{pdf/flow-diagram.pdf}
+    \label{fig:flowdiagram}
+\end{figure}
+
+\begin{equation}
+    \begin{split}
+    & \Lambda_{1} = 0.5 \\
+    & \Lambda_{2} = p_{1,2}\Lambda_1 = 1 \cdot 0.5 = 0.5 \\
+    \end{split}
+\end{equation}
+
+Uzly jsou stacionární, protože jejich zatížení jsou menší než 1:
+
+\begin{equation}
+    \begin{split}
+    & \rho_1 = \Lambda_1T_1 = 0.5 \cdot 1 = 0.5 \\
+    & \rho_2 = \Lambda_2T_2 = 0.5 \cdot 1.33 = 0.665 \\
+    \end{split}
+\end{equation}
+
+Dále vypočítáme střední doby $L_{q1}$ a $L_{q2}$ tak, že odvodíme obecné $L_q$ z $L_w$ pro Kendellovu klasifikaci \textit{M/G/1}, které odpovídá popis zadání:
+
+
+\begin{equation}
+    \begin{split}
+    & L_w = L_{w(M/M/1)} \frac{1+C_{s}^{2}}{2} = \frac{\rho^2}{1 - \rho} \frac{1+C_{s}^{2}}{2}\\
+    & L_q = L_w + \rho =  \frac{\rho^2}{1 - \rho} \frac{1+C_{s}^{2}}{2}  + \rho \\
+    & L_{q_1} = \frac{0.5^2}{1 - 0.5} \frac{1+0.5^{2}}{2} + 0.5 = 0.8125 \\
+    & L_{q_2} = \frac{0.665^2}{1 - 0.665} \frac{1+0.5^{2}}{2} + 0.665 \doteq 1.49 \\
+    \end{split}
+\end{equation}
+
+$L_q$ celého SHO lze vypočítat jako součet $L_{q_1}$ a $L_{q2}$:
+
+
+
+\begin{equation}
+    \begin{split}
+    & L_q = L_{q1} + L_{q2} = 0.8125 + 1.49 \doteq 2.3025 \\
+    \end{split}
+\end{equation}
+
+$T_q$ nakonec spočítáme ze vzorce $T_q$ pro klasifikaci \textit{M/G/1}:
+
+\begin{equation}
+    \begin{split}
+    & T_q = \frac{L_q}{\lambda} = \frac{2.3025}{0.5} \doteq 4.6051 \\
+    \end{split}
+\end{equation}
+
+Frekvence výstupního toku sítě je převrácená hodnota střední doby obsluhy druhého (posledního) uzlu:
+
+\begin{equation}
+    \begin{split}
+    & \mu = \frac{1}{T_{s_2}} = \frac{1}{1.33} \doteq \SI[product-units = single]{0.7519}{\Hz} \\
+    \end{split}
+\end{equation}
 
 
 \end{document}
