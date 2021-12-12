@@ -80,11 +80,12 @@ class Patient:
         self.total_days_at_intensive_care = 0
         self.total_days_at_intensive_care_2 = 0
         self.day_hospitalized = day_hospitalized
+        self.transfer_to_intensive_care_required = False
 
     def go_to_standard_care(self, hospital, env, ret_codes, days=None):
         # random hospitalization days
         if days is None:
-            days = max(random.gauss(hospital.mean_standard_treatment, hospital.std_dev_standard_treatment), 0)
+            days = int(max(random.gauss(hospital.mean_standard_treatment, hospital.std_dev_standard_treatment), 0))
         day = 0
 
         transferred_to_int_care = False
@@ -129,18 +130,22 @@ class Patient:
 
                 
                 # if the patient did not die he may require to be transfered to a intensive care bed
-                transfer_to_intensive_care_required = random.random() < hospital.standard_care_not_sufficient_chance
-
-                if transfer_to_intensive_care_required:
+                if not self.transfer_to_intensive_care_required:
+                    self.transfer_to_intensive_care_required = random.random() < hospital.standard_care_not_sufficient_chance
+                    self.days_without_intensive_care = 0
+                    
+                elif self.transfer_to_intensive_care_required:
                     # check whether there are any intensive care beds available
                     if hospital.intensive_care_beds.count >= hospital.intensive_care_beds.capacity:
                         self.days_without_intensive_care += 1
                         # check whether the patient requiring intensive care has been too many days on a standard care
                         if self.days_without_intensive_care > self.limit_of_days_without_intensive_care:
+                            self.log(env, "died after waiting for intensive care for too long")
                             ret_codes.append((PatientHospitalizationResult.DEATH_WITHOUT_INTENSIVE_CARE, self, env.now))
                             return 
                     else:
-                        self.log(env, "required int care, made it after", self.days_without_intensive_care)
+                        self.transfer_to_intensive_care_required = False
+                        self.log(env, "required int care, transfered after", self.days_without_intensive_care)
                         day = days
                         transferred_to_int_care = True
                         break
@@ -157,8 +162,10 @@ class Patient:
     def go_to_intensive_care(self, hospital, env, ret_codes):
 
         # random hospitalization days
-        days = max(np.random.exponential(hospital.mean_intensive_care_treatment), 0)
+        days = int(max(np.random.exponential(hospital.mean_intensive_care_treatment), 0))
         day = 0
+
+        self.log(env, "hospitalized for", days, "days")
 
         # check whether intensive care beds are full (should not happen)
         if hospital.intensive_care_beds.count >= hospital.intensive_care_beds.capacity:
@@ -196,19 +203,23 @@ class Patient:
                     self.total_days_at_intensive_care_2 += 1
                     # standard beds are not full
                     if hospital.standard_beds.count < hospital.standard_beds.capacity:
+                        self.log(env, "moved to intensive care after waiting")
                         env.process(self.go_to_standard_care(hospital, env, ret_codes, days - day))
                         return
                     else:
                          # the patient may have died during the day at a standard care bed
                         died = random.random() < hospital.standard_care_death_chance
                         if died:
+                            self.log(env, "died in intensive care requiring standard care")
                             ret_codes.append((PatientHospitalizationResult.DEATH_INT_CARE_STD, self, env.now))
                             return 
+                    self.log(env, "recovered in intensive care requiring standard care")
                     ret_codes.append((PatientHospitalizationResult.RECOVERED, self, env.now))
                 return
    
             else:
                 self.log(env, "recovered from intensive, moved to standard")
+                hospital.monitor()
                 env.process(self.go_to_standard_care(hospital, env, ret_codes))
                 return
         assert(false)
@@ -236,7 +247,7 @@ def main():
     env = simpy.Environment()
     ret_codes = []
     #hospital = Hospital(env, 110, 12, 10, 5, 10, 50, 0.0005, 0.08, 0.0075)
-    hospital = Hospital(env, 10, 2, 10, 5, 10, 50, 0.0005, 0.08, 0.0075)
+    hospital = Hospital(env, 30, 9, 15, 5, 5, 50, 0.0005, 0.08, 0.0075)
 
     env.process(run_hospital(env, hospital, ret_codes))
     
