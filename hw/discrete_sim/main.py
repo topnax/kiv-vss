@@ -4,7 +4,7 @@ import numpy as np
 
 from enum import Enum
 
-
+# a class that extends the simpy.Resource in order to provide monitoring capabilities
 class MonitoredResource(simpy.Resource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,37 +26,28 @@ class MonitoredResource(simpy.Resource):
 
 
 class Hospital:
-    def __init__(self, env, num_standard_beds, num_intensive_care_beds, mean_standard_treatment, mean_intensive_care_treatment, std_dev_standard_treatment, std_dev_intensive_care_treatment, standard_care_death_chance, standard_care_not_sufficient_chance, intensive_care_death_chance):
+    def __init__(self, env, num_standard_beds, num_intensive_care_beds, mean_standard_treatment, mean_intensive_care_treatment, std_dev_standard_treatment, standard_care_death_chance, standard_care_not_sufficient_chance, intensive_care_death_chance):
         self.env = env
+        # create resources
         self.standard_beds = MonitoredResource(env, num_standard_beds)
         self.intensive_care_beds = MonitoredResource(env, num_intensive_care_beds)
+
+        # define properties of the treatment
         self.mean_standard_treatment = mean_standard_treatment
         self.mean_intensive_care_treatment = mean_intensive_care_treatment
         self.std_dev_standard_treatment = std_dev_standard_treatment
-        self.std_dev_intensive_care_treatment = std_dev_intensive_care_treatment
         self.standard_care_death_chance = standard_care_death_chance
         self.standard_care_not_sufficient_chance = standard_care_not_sufficient_chance
         self.intensive_care_death_chance = intensive_care_death_chance
-        self.standard_care_beds_stats = {}
-        self.intensive_care_beds_stats = {}
-
-
-    def standard_treatment(self):
-        yield self.env.timeout(max(random.gauss(self.mean_standard_treatment, self.std_dev_standard_treatment), 0))
-
-    def intensive_care_treatment(self):
-        yield self.env.timeout(max(random.gauss(self.mean_intensive_care_treatment, self.std_dev_intensive_care_treatment), 0))
 
     def monitor(self):
         self.standard_beds.update_data()
         self.intensive_care_beds.update_data()
        
 
+# patient sickness outcomes
 class PatientHospitalizationResult(Enum):
-    STANDARD_FULL = 1
-    INTENSIVE_FULL = 2
     DEATH_STD_CARE = 3
-    MOVED_TO_INTENSIVE = 4
     RECOVERED = 5
     DEATH_WITHOUT_STD_CARE = 6
     DEATH_WITHOUT_INTENSIVE_CARE = 7
@@ -82,7 +73,7 @@ class Patient:
         self.day_hospitalized = day_hospitalized
         self.transfer_to_intensive_care_required = False
 
-    def go_to_standard_care(self, hospital, env, ret_codes, days=None):
+    def go_to_standard_care(self, hospital, env, patient_outcomes, days=None):
         # random hospitalization days
         if days is None:
             days = int(max(random.gauss(hospital.mean_standard_treatment, hospital.std_dev_standard_treatment), 0))
@@ -101,7 +92,7 @@ class Patient:
             # the patient was not moved to a standard care bed
             if request not in results:
                 self.log(env, "died without standard care")
-                ret_codes.append((PatientHospitalizationResult.DEATH_WITHOUT_STD_CARE, self, env.now))
+                patient_outcomes.append((PatientHospitalizationResult.DEATH_WITHOUT_STD_CARE, self, env.now))
                 hospital.monitor()
                 return
 
@@ -125,7 +116,7 @@ class Patient:
                 
                 if died:
                     self.log(env, "died at standard care" ) 
-                    ret_codes.append((PatientHospitalizationResult.DEATH_STD_CARE, self, env.now))
+                    patient_outcomes.append((PatientHospitalizationResult.DEATH_STD_CARE, self, env.now))
                     return 
 
                 
@@ -141,7 +132,7 @@ class Patient:
                         # check whether the patient requiring intensive care has been too many days on a standard care
                         if self.days_without_intensive_care > self.limit_of_days_without_intensive_care:
                             self.log(env, "died after waiting for intensive care for too long")
-                            ret_codes.append((PatientHospitalizationResult.DEATH_WITHOUT_INTENSIVE_CARE, self, env.now))
+                            patient_outcomes.append((PatientHospitalizationResult.DEATH_WITHOUT_INTENSIVE_CARE, self, env.now))
                             return 
                     else:
                         self.transfer_to_intensive_care_required = False
@@ -151,26 +142,21 @@ class Patient:
                         break
                 
         if transferred_to_int_care:
-            env.process(self.go_to_intensive_care(hospital, env, ret_codes))
+            env.process(self.go_to_intensive_care(hospital, env, patient_outcomes))
             return
 
 
         # the patient has recovered
         self.log(env, "recovered from standard")
-        ret_codes.append((PatientHospitalizationResult.RECOVERED, self, env.now))
+        patient_outcomes.append((PatientHospitalizationResult.RECOVERED, self, env.now))
 
-    def go_to_intensive_care(self, hospital, env, ret_codes):
+    def go_to_intensive_care(self, hospital, env, patient_outcomes):
 
         # random hospitalization days
         days = int(max(np.random.exponential(hospital.mean_intensive_care_treatment), 0))
         day = 0
 
         self.log(env, "hospitalized for", days, "days")
-
-        # check whether intensive care beds are full (should not happen)
-        if hospital.intensive_care_beds.count >= hospital.intensive_care_beds.capacity:
-            ret_codes.append((PatientHospitalizationResult.INTENSIVE_FULL, self, env.now))
-            return
             
         with hospital.intensive_care_beds.request() as request:
             # get a bed
@@ -184,7 +170,7 @@ class Patient:
                 died = random.random() < hospital.intensive_care_death_chance
                 
                 if died:
-                    ret_codes.append((PatientHospitalizationResult.DEATH_INT_CARE, self, env.now)) 
+                    patient_outcomes.append((PatientHospitalizationResult.DEATH_INT_CARE, self, env.now)) 
                     return
 
             # move to a standard bed
@@ -204,23 +190,23 @@ class Patient:
                     # standard beds are not full
                     if hospital.standard_beds.count < hospital.standard_beds.capacity:
                         self.log(env, "moved to intensive care after waiting")
-                        env.process(self.go_to_standard_care(hospital, env, ret_codes, days - day))
+                        env.process(self.go_to_standard_care(hospital, env, patient_outcomes, days - day))
                         return
                     else:
                          # the patient may have died during the day at a standard care bed
                         died = random.random() < hospital.standard_care_death_chance
                         if died:
                             self.log(env, "died in intensive care requiring standard care")
-                            ret_codes.append((PatientHospitalizationResult.DEATH_INT_CARE_STD, self, env.now))
+                            patient_outcomes.append((PatientHospitalizationResult.DEATH_INT_CARE_STD, self, env.now))
                             return 
                     self.log(env, "recovered in intensive care requiring standard care")
-                    ret_codes.append((PatientHospitalizationResult.RECOVERED, self, env.now))
+                    patient_outcomes.append((PatientHospitalizationResult.RECOVERED, self, env.now))
                 return
    
             else:
                 self.log(env, "recovered from intensive, moved to standard")
                 hospital.monitor()
-                env.process(self.go_to_standard_care(hospital, env, ret_codes))
+                env.process(self.go_to_standard_care(hospital, env, patient_outcomes))
                 return
         assert(false)
 
@@ -228,7 +214,7 @@ class Patient:
         print(f"[{env.now}]", f"#{self.patient_id} (@{self.day_hospitalized})",*message)
 
 
-def run_hospital(env, hospital, ret_codes):
+def run_hospital(env, hospital, patient_outcomes):
     standard_care_bed_used = []
     intensive_care_bed_used = []
     pi = 0
@@ -236,7 +222,7 @@ def run_hospital(env, hospital, ret_codes):
         for j in range(np.random.poisson(3)):
             p = Patient(pi, 4, 10, i)
             pi += 1
-            env.process(p.go_to_standard_care(hospital, env, ret_codes))
+            env.process(p.go_to_standard_care(hospital, env, patient_outcomes))
         standard_care_bed_used.append(hospital.standard_beds.count) 
         intensive_care_bed_used.append(hospital.intensive_care_beds.count) 
         yield env.timeout(1)
@@ -245,16 +231,30 @@ def run_hospital(env, hospital, ret_codes):
 
 def main():
     env = simpy.Environment()
-    ret_codes = []
-    #hospital = Hospital(env, 110, 12, 10, 5, 10, 50, 0.0005, 0.08, 0.0075)
-    hospital = Hospital(env, 30, 9, 15, 5, 5, 50, 0.0005, 0.08, 0.0075)
+    patient_outcomes = []
 
-    env.process(run_hospital(env, hospital, ret_codes))
-    
+    # create a hospital
+    hospital = Hospital(
+        env, 
+        num_standard_beds=28, 
+        num_intensive_care_beds=9, 
+        mean_standard_treatment=15, 
+        mean_intensive_care_treatment=10,
+        std_dev_standard_treatment=5,
+        standard_care_death_chance=0.0005,
+        standard_care_not_sufficient_chance=0.08,
+        intensive_care_death_chance=0.0075
+    )
+
+    # run the simulation
+    env.process(run_hospital(env, hospital, patient_outcomes))
     env.run()
-    for (result, patient_id, day) in ret_codes:
-        print("patient:", patient_id.patient_id, f"{patient_id.day_hospitalized}", result, "at", day)
 
+    # print patient results
+    for (result, patient, day) in patient_outcomes:
+        print(f"#{patient.patient_id}", f"@{patient.day_hospitalized}:", result, "at", day)
+
+    # print day statistics
     for (day_s, s), (day_i, i) in zip(hospital.standard_beds.data.items(), hospital.intensive_care_beds.data.items()):
         print("day:", day_s, "standard:", s, "intensive:", i)
 
