@@ -13,12 +13,15 @@
         - after intensive care treatment is finished the patient returns to the standard care bed
             - if no standard care bed is available, then the patient standard care treatment begins at intensive care bed
 ## Usage
-- the simulation is run by exeuting the `main.py` script
+- the simulation is run by executing the `main.py` script using the Python 3 interpreter
+    - `python3 main.py` (runs the simulation with default parameters)
 - simulation parameters can be passed via program arguments
-    - see help section `python3 main.py --help` 
+    - see help section (`python3 main.py --help` )
 - or by specifying a configuration file
     - `python3 main.py --config sample_config.json`
     - see the [sample configuration](sample_config.json)
 - to have repeating results one can specify the seed by using the `--seed` switch
+    - `python3 main.py --seed 42` (the answer to the ultimate question of life, the universe and everything)
 - to have beds availability stats plotted one pass the  `--plot` switch
+    - `python3 main.py --plot` (requires `matplotlib` installed)
 
