@@ -37,6 +37,7 @@ def main():
     parser.add_argument("--max_days_without_intensive_care", default=4, help="The number of days the patient dies if not hospitalized in the intensive care", type=int)
     parser.add_argument("--config", default=None, help="Path to the configuration file (in JSON format). Individual attributes should follow arguments structure as described in this help message.", type=str)
     parser.add_argument("--seed", default=None, help="Seed for the random number generator", type=int)
+    parser.add_argument("--plot", default=False, dest="plot", help="Plot the bed usage", action="store_const", const=True)
     
     args = parser.parse_args()
 
@@ -67,6 +68,8 @@ def main():
             else:
                 assert(type(value) == int)
         params = DictObj(config)
+        params.plot = args.plot
+        params.seed = args.seed
     else:
         params = args
 

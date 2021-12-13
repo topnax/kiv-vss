@@ -2,7 +2,7 @@ import random
 from monitored_resource import MonitoredResource
 import simpy
 import numpy as np
-
+from sim_stats_plotting import plot_hospital_data
 from enum import Enum, auto
 
 
@@ -57,6 +57,9 @@ class Simulation:
             print(f"@{day_s}, standard beds: {s}/{hospital.standard_beds.capacity}, intensive care beds: {i}/{hospital.intensive_care_beds.capacity}")
         
         self.print_sim_stats(patient_outcomes)
+
+        if params.plot:
+            plot_hospital_data(hospital)
 
     def run_hospital(self, env, hospital, patient_outcomes, days_with_new_patients, mean_new_patients_each_day, max_days_without_std_care, max_days_without_intensive_care):
         patient_id = 0
