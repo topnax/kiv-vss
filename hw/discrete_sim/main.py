@@ -4,6 +4,7 @@ import random
 import simpy
 import numpy as np
 import sys
+import json
 
 from enum import Enum
 
@@ -283,6 +284,17 @@ def run_simulation(params):
     for (day_s, s), (day_i, i) in zip(hospital.standard_beds.data.items(), hospital.intensive_care_beds.data.items()):
         print(f"@{day_s}, standard beds: {s}/{hospital.standard_beds.capacity}, intensive care beds: {i}/{hospital.intensive_care_beds.capacity}")
 
+
+class DictObj:
+    def __init__(self, in_dict):
+        assert isinstance(in_dict, dict)
+        for key, val in in_dict.items():
+            if isinstance(val, (list, tuple)):
+               setattr(self, key, [DictObj(x) if isinstance(x, dict) else x for x in val])
+            else:
+               setattr(self, key, DictObj(val) if isinstance(val, dict) else val)
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -298,29 +310,38 @@ def main():
     parser.add_argument("--mean_new_patients_each_day", default=3, help="Help", type=int)
     parser.add_argument("--max_days_without_std_care", default=10, help="Help", type=int)
     parser.add_argument("--max_days_without_intensive_care", default=4, help="Help", type=int)
+    parser.add_argument("--config", default=None, help="Help", type=str)
+    
 
     args = parser.parse_args()
-    
-    print(args)
 
-        
-    params = SimulationParams(
-        num_standard_beds=28, 
-        num_intensive_care_beds=9, 
-        mean_standard_treatment=15, 
-        mean_intensive_care_treatment=10,
-        std_dev_standard_treatment=5,
-        standard_care_death_chance=0.0005,
-        standard_care_not_sufficient_chance=0.08,
-        intensive_care_death_chance=0.0075,
-        days_with_new_patients=30, 
-        mean_new_patients_each_day=3, 
-        max_days_without_std_care=10, 
-        max_days_without_intensive_care=4
-    )
+    if args.config is not None:
+        print("Config file passed, ignoring any other parameters...")
+        parser.add_argument("--verbosity", help="increase output verbosity")
+        file = open(args.config)
+        config = json.load(file)
+        assert "num_standard_beds" in config, "num_standard_beds not present in the config"
+        assert "num_intensive_care_beds" in config, "num_intensive_care_beds not present in the config"
+        assert "mean_standard_treatment" in config, "mean_standard_treatment not present in the config"
+        assert "mean_intensive_care_treatment" in config, "mean_intensive_care_treatment not present in the config"
+        assert "std_dev_standard_treatment" in config, "std_dev_standard_treatment not present in the config"
+        assert "standard_care_death_chance" in config, "standard_care_death_chance not present in the config"
+        assert "standard_care_not_sufficient_chance" in config, "standard_care_not_sufficient_chance not present in the config"
+        assert "intensive_care_death_chance" in config, "intensive_care_death_chance not present in the config"
+        assert "days_with_new_patients" in config, "days_with_new_patients not present in the config"
+        assert "mean_new_patients_each_day" in config, "mean_new_patients_each_day not present in the config"
+        assert "max_days_without_std_care" in config, "max_days_without_std_care not present in the config"
+        assert "max_days_without_intensive_care" in config, "max_days_without_intensive_care not present in the config"
+        for key, value in config.items():
+            if key == "intensive_care_death_chance" or key == "standard_care_death_chance" or key == "standard_care_not_sufficient_chance": 
+                assert(type(value) == float)
+            else:
+                assert(type(value) == int)
+        params = DictObj(config)
+    else:
+        params = args
 
-    params = args
-
+    print(params)
     run_simulation(params)
 
 
