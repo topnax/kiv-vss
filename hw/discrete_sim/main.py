@@ -1,3 +1,4 @@
+from simulation_params import SimulationParams 
 import random
 import simpy
 import numpy as np
@@ -237,21 +238,21 @@ def run_hospital(env, hospital, patient_outcomes, days_with_new_patients, mean_n
         hospital.monitor()
 
 
-def main():
+def run_simulation(params):
     env = simpy.Environment()
     patient_outcomes = []
 
     # create a hospital
     hospital = Hospital(
         env, 
-        num_standard_beds=28, 
-        num_intensive_care_beds=9, 
-        mean_standard_treatment=15, 
-        mean_intensive_care_treatment=10,
-        std_dev_standard_treatment=5,
-        standard_care_death_chance=0.0005,
-        standard_care_not_sufficient_chance=0.08,
-        intensive_care_death_chance=0.0075
+        num_standard_beds=params.num_standard_beds, 
+        num_intensive_care_beds=params.num_intensive_care_beds, 
+        mean_standard_treatment=params.mean_standard_treatment, 
+        mean_intensive_care_treatment=params.mean_intensive_care_treatment,
+        std_dev_standard_treatment=params.std_dev_standard_treatment,
+        standard_care_death_chance=params.standard_care_death_chance,
+        standard_care_not_sufficient_chance=params.standard_care_not_sufficient_chance,
+        intensive_care_death_chance=params.intensive_care_death_chance
     )
 
     # run the simulation
@@ -279,6 +280,24 @@ def main():
     # print day statistics
     for (day_s, s), (day_i, i) in zip(hospital.standard_beds.data.items(), hospital.intensive_care_beds.data.items()):
         print(f"@{day_s}, standard beds: {s}/{hospital.standard_beds.capacity}, intensive care beds: {i}/{hospital.intensive_care_beds.capacity}")
+
+def main():
+    params = SimulationParams(
+        num_standard_beds=28, 
+        num_intensive_care_beds=9, 
+        mean_standard_treatment=15, 
+        mean_intensive_care_treatment=10,
+        std_dev_standard_treatment=5,
+        standard_care_death_chance=0.0005,
+        standard_care_not_sufficient_chance=0.08,
+        intensive_care_death_chance=0.0075,
+        days_with_new_patients=30, 
+        mean_new_patients_each_day=3, 
+        max_days_without_std_care=10, 
+        max_days_without_intensive_care=4
+    )
+
+    run_simulation(params)
 
 
 if __name__ == "__main__":
