@@ -3,7 +3,7 @@ from monitored_resource import MonitoredResource
 import simpy
 import numpy as np
 
-from enum import Enum
+from enum import Enum, auto
 
 
 class Simulation:
@@ -55,6 +55,8 @@ class Simulation:
         # print day statistics
         for (day_s, s), (day_i, i) in zip(hospital.standard_beds.data.items(), hospital.intensive_care_beds.data.items()):
             print(f"@{day_s}, standard beds: {s}/{hospital.standard_beds.capacity}, intensive care beds: {i}/{hospital.intensive_care_beds.capacity}")
+        
+        self.print_sim_stats(patient_outcomes)
 
     def run_hospital(self, env, hospital, patient_outcomes, days_with_new_patients, mean_new_patients_each_day, max_days_without_std_care, max_days_without_intensive_care):
         patient_id = 0
@@ -68,6 +70,39 @@ class Simulation:
             # next day  of the simulation
             yield env.timeout(1)
             hospital.monitor()
+
+    def print_sim_stats(self, patient_outcomes):
+        # compute the death probability
+        deaths_total = 0
+        results_dict = {}
+
+        deaths_standard_care = 0
+        deaths_intensive_care = 0
+        for (result, patient, day) in patient_outcomes:
+            results_dict[result] = results_dict.get(result, 0) + 1
+
+        recovered_total = results_dict.get(PatientHospitalizationResult.RECOVERED, 0)
+        deaths_std_care_total = results_dict.get(PatientHospitalizationResult.DEATH_STD_CARE, 0)
+        deaths_int_care_total = results_dict.get(PatientHospitalizationResult.DEATH_INT_CARE, 0)
+        deaths_int_care_std_total = results_dict.get(PatientHospitalizationResult.DEATH_INT_CARE_STD, 0)
+        deaths_without_std_care_total = results_dict.get(PatientHospitalizationResult.DEATH_WITHOUT_STD_CARE, 0)
+        deaths_without_int_care_total = results_dict.get(PatientHospitalizationResult.DEATH_WITHOUT_INTENSIVE_CARE, 0)
+        deaths_total = sum(results_dict.values()) - recovered_total
+        patients = sum(results_dict.values())
+        print()
+        print("Simulation stats:")
+        print("patients:", patients)
+        print("recovered:", recovered_total)
+        print("deaths total:", deaths_total)
+        print("deaths standard care total:", deaths_std_care_total)
+        print("deaths intensive care total:", deaths_int_care_total)
+        print("deaths intensive care requiring standard care:", deaths_int_care_std_total)
+        print("deaths requiring standard care and not hospitalized:", deaths_without_std_care_total)
+        print("deaths requiring intensive care but kept on standard care:", deaths_without_int_care_total)
+
+        print(f"death probability: {((deaths_total / patients) * 100):.4f}%")
+        print(f"probability of not being hospitalized and dying: {((deaths_without_std_care_total / patients) * 100):.4f}%")
+        print(f"probability of not being hospitalized at intensive care and dying: {((deaths_without_int_care_total / patients) * 100):.4f}%")
 
 
 class Hospital:
@@ -92,12 +127,12 @@ class Hospital:
 
 # patient sickness outcomes
 class PatientHospitalizationResult(Enum):
-    DEATH_STD_CARE = 3
-    RECOVERED = 5
-    DEATH_WITHOUT_STD_CARE = 6
-    DEATH_WITHOUT_INTENSIVE_CARE = 7
-    DEATH_INT_CARE = 8
-    DEATH_INT_CARE_STD = 9
+    DEATH_STD_CARE = auto()
+    RECOVERED = auto()
+    DEATH_WITHOUT_STD_CARE = auto()
+    DEATH_WITHOUT_INTENSIVE_CARE = auto()
+    DEATH_INT_CARE = auto()
+    DEATH_INT_CARE_STD = auto()
 
     def __str__(self):
         return self.name
