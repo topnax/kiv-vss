@@ -1,7 +1,9 @@
+import argparse
 from simulation_params import SimulationParams 
 import random
 import simpy
 import numpy as np
+import sys
 
 from enum import Enum
 
@@ -282,6 +284,26 @@ def run_simulation(params):
         print(f"@{day_s}, standard beds: {s}/{hospital.standard_beds.capacity}, intensive care beds: {i}/{hospital.intensive_care_beds.capacity}")
 
 def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--num_standard_beds", default=28, help="Help", type=int)
+    parser.add_argument("--num_intensive_care_beds", default=9, help="Help", type=int)
+    parser.add_argument("--mean_standard_treatment", default=15, help="Help", type=int)
+    parser.add_argument("--mean_intensive_care_treatment", default=10,help="Help", type=int)
+    parser.add_argument("--std_dev_standard_treatment", default=5, help="Help", type=int)
+    parser.add_argument("--standard_care_death_chance", default=0.0005, help="Help", type=float)
+    parser.add_argument("--standard_care_not_sufficient_chance", default=0.08, help="Help", type=float)
+    parser.add_argument("--intensive_care_death_chance", default=0.0075, help="Help", type=float)
+    parser.add_argument("--days_with_new_patients", default=30, help="Help", type=int)
+    parser.add_argument("--mean_new_patients_each_day", default=3, help="Help", type=int)
+    parser.add_argument("--max_days_without_std_care", default=10, help="Help", type=int)
+    parser.add_argument("--max_days_without_intensive_care", default=4, help="Help", type=int)
+
+    args = parser.parse_args()
+    
+    print(args)
+
+        
     params = SimulationParams(
         num_standard_beds=28, 
         num_intensive_care_beds=9, 
@@ -296,6 +318,8 @@ def main():
         max_days_without_std_care=10, 
         max_days_without_intensive_care=4
     )
+
+    params = args
 
     run_simulation(params)
 
