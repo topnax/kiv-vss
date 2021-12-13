@@ -4,6 +4,10 @@ import sys
 import json
 from simulation import Simulation
 
+import random
+import numpy as np
+
+
 from enum import Enum
 
 class DictObj:
@@ -32,9 +36,13 @@ def main():
     parser.add_argument("--max_days_without_std_care", default=10, help="The number of days the patient dies if not hospitalized in the standard care", type=int)
     parser.add_argument("--max_days_without_intensive_care", default=4, help="The number of days the patient dies if not hospitalized in the intensive care", type=int)
     parser.add_argument("--config", default=None, help="Path to the configuration file (in JSON format). Individual attributes should follow arguments structure as described in this help message.", type=str)
+    parser.add_argument("--seed", default=None, help="Seed for the random number generator", type=int)
     
-
     args = parser.parse_args()
+
+    if args.seed is not None:
+        np.random.seed(args.seed)
+        random.seed(args.seed)
 
     if args.config is not None:
         print("Config file passed, ignoring any other parameters...")
@@ -68,5 +76,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
