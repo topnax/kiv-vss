@@ -1,6 +1,6 @@
 # Discrete simulation - Hospital
 ![Sample plot](sample_plot.png)
-- a discrete hospital simulation written in Python 3 using the Simpy [library](https://simpy.readthedocs.io/en/latest/)
+- a discrete hospital simulation written in Python 3 using the [Simpy](https://simpy.readthedocs.io/en/latest/) library
 - simulates a hospital that takes care of incoming patients (patient number growth follows **poisson distribution**) for a given number of days
     - patient is first transfered to a standard care bed
         - hospitalized for a random number of days (**gaussian distribution**)
@@ -13,10 +13,12 @@
         - after intensive care treatment is finished the patient returns to the standard care bed
             - if no standard care bed is available, then the patient standard care treatment begins at intensive care bed
 ## Usage
+- the simulation is run by exeuting the `main.py` script
 - simulation parameters can be passed via program arguments
     - see help section `python3 main.py --help` 
 - or by specifying a configuration file
     - `python3 main.py --config sample_config.json`
+    - see the [sample configuration](sample_config.json)
 - to have repeating results one can specify the seed by using the `--seed` switch
 - to have beds availability stats plotted one pass the  `--plot` switch
-    
+
