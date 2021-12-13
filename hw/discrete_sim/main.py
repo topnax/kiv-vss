@@ -1,5 +1,6 @@
 import argparse
 from simulation_params import SimulationParams 
+from os.path import exists 
 import random
 import simpy
 import numpy as np
@@ -57,7 +58,6 @@ class PatientHospitalizationResult(Enum):
     DEATH_WITHOUT_INTENSIVE_CARE = 7
     DEATH_INT_CARE = 8
     DEATH_INT_CARE_STD = 9
-
 
     def __str__(self):
         return self.name
@@ -260,10 +260,10 @@ def run_simulation(params):
 
     # run the simulation
     env.process(run_hospital(env, hospital, patient_outcomes, 
-                days_with_new_patients=30, 
-                mean_new_patients_each_day=3, 
-                max_days_without_std_care=10, 
-                max_days_without_intensive_care=4
+                days_with_new_patients=params.days_with_new_patients, 
+                mean_new_patients_each_day=params.mean_new_patients_each_day, 
+                max_days_without_std_care=params.max_days_without_std_care, 
+                max_days_without_intensive_care=params.max_days_without_intensive_care
         )
     )
     print("Hospital events:")
@@ -296,28 +296,28 @@ class DictObj:
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--num_standard_beds", default=28, help="Help", type=int)
-    parser.add_argument("--num_intensive_care_beds", default=9, help="Help", type=int)
-    parser.add_argument("--mean_standard_treatment", default=15, help="Help", type=int)
-    parser.add_argument("--mean_intensive_care_treatment", default=10,help="Help", type=int)
-    parser.add_argument("--std_dev_standard_treatment", default=5, help="Help", type=int)
-    parser.add_argument("--standard_care_death_chance", default=0.0005, help="Help", type=float)
-    parser.add_argument("--standard_care_not_sufficient_chance", default=0.08, help="Help", type=float)
-    parser.add_argument("--intensive_care_death_chance", default=0.0075, help="Help", type=float)
-    parser.add_argument("--days_with_new_patients", default=30, help="Help", type=int)
-    parser.add_argument("--mean_new_patients_each_day", default=3, help="Help", type=int)
-    parser.add_argument("--max_days_without_std_care", default=10, help="Help", type=int)
-    parser.add_argument("--max_days_without_intensive_care", default=4, help="Help", type=int)
-    parser.add_argument("--config", default=None, help="Help", type=str)
+    parser.add_argument("--num_standard_beds", default=28, help="The number of standard care beds available in the hospital", type=int)
+    parser.add_argument("--num_intensive_care_beds", default=9, help="The number of beds at the intensive care available in the hospital", type=int)
+    parser.add_argument("--mean_standard_treatment", default=15, help="The mean value of days it takes for a patient at the standard care to recover", type=int)
+    parser.add_argument("--mean_intensive_care_treatment", default=10,help="The mean value of days it takes for a patient at the standard care to recover", type=int)
+    parser.add_argument("--std_dev_standard_treatment", default=5, help="The deviation value of days it takes for a patient at the standard care to recover", type=int)
+    parser.add_argument("--standard_care_death_chance", default=0.0005, help="The chance a patient dies each day at the standard care", type=float)
+    parser.add_argument("--standard_care_not_sufficient_chance", default=0.08, help="The chance a patient dies has to be moved to the intensive care", type=float)
+    parser.add_argument("--intensive_care_death_chance", default=0.0075, help="The chance a patient dies each day at the intensive care", type=float)
+    parser.add_argument("--days_with_new_patients", default=30, help="Number of days new patients are coming to the hospital", type=int)
+    parser.add_argument("--mean_new_patients_each_day", default=3, help="Mean value of patients that come each day to the hospital", type=int)
+    parser.add_argument("--max_days_without_std_care", default=10, help="The number of days the patient dies if not hospitalized in the standard care", type=int)
+    parser.add_argument("--max_days_without_intensive_care", default=4, help="The number of days the patient dies if not hospitalized in the intensive care", type=int)
+    parser.add_argument("--config", default=None, help="Path to the configuration file (in JSON format). Individual attributes should follow arguments structure as described in this help message.", type=str)
     
 
     args = parser.parse_args()
 
     if args.config is not None:
         print("Config file passed, ignoring any other parameters...")
-        parser.add_argument("--verbosity", help="increase output verbosity")
+        assert exists(args.config), "configuration file does not exist"
         file = open(args.config)
         config = json.load(file)
         assert "num_standard_beds" in config, "num_standard_beds not present in the config"
@@ -341,7 +341,6 @@ def main():
     else:
         params = args
 
-    print(params)
     run_simulation(params)
 
 
