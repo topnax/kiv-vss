@@ -1,11 +1,13 @@
 from playwright.sync_api import sync_playwright
 import sys
 import requests
+import datetime
 
 
 BASE_URL = "https://pytlak.eu-central-1.elasticbeanstalk.com"
 LOGIN_URL = BASE_URL + "/login"
 DEVICE_URL = BASE_URL + "/terminal-edit?selectedId={selected_id}"
+NEW_DEVICE_URL = BASE_URL + "/device-edit?parentId={parent_id}"
 ACTIVATE_URL = BASE_URL + "/api/device/activate"
 DEACTIVATE_URL = BASE_URL + "/api/device/deactivate"
 
@@ -40,15 +42,10 @@ class DotypayPortal:
         return api_keys
 
     def login(self):
-        print("1")
         self.page.goto(LOGIN_URL)
-        print("2")
         self.page.fill('#username', self.username)
-        print("3")
         self.page.fill('#password', self.password)
-        print("4")
         self.page.dispatch_event("#login-submit", "click") 
-        print("5")
         assert self.page.title() == "Dashboard"
 
     def go_to_device(self, device_id):
@@ -106,6 +103,25 @@ class DotypayPortal:
     def get_name(self):
         return self.page.input_value("#name") 
     
+    def go_to_new_device_page(self, parent_id):
+        self.page.goto(NEW_DEVICE_URL.format(parent_id=parent_id))
+        assert self.page.title() == "Vytváření zařízení"
+
+    def create_new_device(self, identifier):
+        assert self.page.title() == "Vytváření zařízení"
+        self.page.fill('#name', identifier)
+        self.page.fill('#serialNumber', identifier)
+        self.page.click('#submitButton')
+        assert self.page.title() == "Zařízení úspěšně vytvořené"
+
+    def create_new_devices(self, n, parent_id):
+        timestamp = datetime.datetime.now().strftime("%d-%m-%Y-%S")
+        for i in range(n):
+            self.go_to_new_device_page(parent_id)
+            identifier = f"{timestamp}-{i}"
+            self.create_new_device(identifier)
+            print("created new device", identifier)
+    
 
 def get_api_keys(username, password, start, end):
 
@@ -113,7 +129,10 @@ def get_api_keys(username, password, start, end):
         # initialize a browser and the Portal wrapper
         browser = p.chromium.launch()
         portal = DotypayPortal(browser, username, password)
-
+        #portal.login()
+        # go to new device page
+        #portal.create_new_devices(12, 57)
+        
         # get API keys for identifiers within the given interval
         # all devices within the interval will be activated
         keys = portal.get_api_keys(start, end)
@@ -126,4 +145,4 @@ def get_api_keys(username, password, start, end):
 
 
 if __name__ == "__main__":
-   get_api_keys(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]) 
+   get_api_keys(sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])) 
