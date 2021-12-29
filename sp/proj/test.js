@@ -5,7 +5,7 @@ import { scenario } from 'k6/execution';
 import { vu } from 'k6/execution';
 import { check } from 'k6';
 
-const base_url = "https://pytlak.eu-central-1.elasticbeanstalk.com";
+const base_url = __ENV.PORTAL_BASE_URL;
 const files_endpoint = base_url + "/api/device/files?apiToken=";
 const tasks_endpoint = base_url + "/api/device/tasks?apiToken=";
 
@@ -41,12 +41,12 @@ export const options = {
 };
 
 
-function check_response(response) {
+function check_response(response, terminal) {
     check(response, {
        'is status 200': (r) => r.status === 200,
     });
     if (response.status !== 200) {
-        console.error(response.status);
+        console.error(`For terminal=${terminal.id} got status code ${response.status}`);
     }
 }
 
@@ -54,9 +54,9 @@ export default function() {
     const terminal = data[vu.idInTest % data.length];
 
     const a = http.get(files_endpoint + terminal.api_token);
-    check_response(a);
+    check_response(a, terminal);
     const b = http.get(tasks_endpoint + terminal.api_token);
-    check_response(b);
+    check_response(b, terminal);
 
     sleep(base_period + Math.random(random_period));
 }
