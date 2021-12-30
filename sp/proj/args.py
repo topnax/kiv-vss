@@ -6,16 +6,16 @@ DEFAULT_PORTAL_URL="https://portaldevelop.dotypay.com"
 CREATE_DEVICES_ACTION="create_devices"
 ACTIVATE_DEVICES_ACTION="activate_devices"
 
+OPTIONS = {
+    CREATE_DEVICES_ACTION: "Create a number of devices",
+    ACTIVATE_DEVICES_ACTION: "Activate multiple devices and list their API keys. If the device is already activated then it is deactivated during the process in order to get an API key.",
+}
+
 
 def get_argparser():
     parser = argparse.ArgumentParser(description='Portal API helper.')
 
-    options = {
-        CREATE_DEVICES_ACTION: "Create a number of devices",
-        ACTIVATE_DEVICES_ACTION: "Activate multiple devices and list their API keys. If the device is already activated then it is deactivated during the process in order to get an API key.",
-    }
-
-    subparsers = parser.add_subparsers(help=", ".join([f"{action_name}: {action_help}" for (action_name, action_help) in options.items()]), dest="action")
+    subparsers = parser.add_subparsers(help=", ".join([f"{action_name}: {action_help}" for (action_name, action_help) in OPTIONS.items()]), dest="action")
 
     create_devices_parser = subparsers.add_parser(CREATE_DEVICES_ACTION)
     create_devices_parser.add_argument("number", type=int, help="Number of devices to be created")
