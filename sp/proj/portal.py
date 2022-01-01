@@ -27,12 +27,14 @@ class DotypayPortal:
         failed = 0
         attempt = 0
         self.current_device_id = start
+        total = end - start
         for device_id in range(start, end + 1):
             attempt += 1
             try:
                 self.go_to_device(device_id) 
                 api_key = self.load_device_api_key() 
                 api_keys.append((self.get_name(), api_key))
+                print(f"Processed {end - device_id}/{total}...")
             except AssertionError as msg:
                 print(msg)
                 print(f"Failed to load API key for #{device_id}")
