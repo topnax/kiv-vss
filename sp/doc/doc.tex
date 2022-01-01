@@ -1,0 +1,143 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage[final]{pdfpages}
+\usepackage{syntax}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsfonts}
+\usepackage{wrapfig}
+
+
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usetikzlibrary{shapes,positioning,matrix,arrows}
+
+\newcommand{\img}[1]{(see figure \ref{#1})}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+
+\lstdefinestyle{flex}{
+    frame=tb,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{black},
+    keywordstyle=\color{black},
+    commentstyle=\color{black},
+    stringstyle=\color{black},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3
+}
+
+\lstset{
+    frame=tb,
+    language=Python,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{pgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3
+}
+
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+\begin{document}
+	% this has to be placed here, after document has been created
+	% \counterwithout{lstlisting}{chapter}
+	\renewcommand{\lstlistingname}{Ukázka kódu}
+	\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+    \begin{titlepage}
+
+        \centering
+
+        \vspace*{\baselineskip}
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=7cm]{img/fav-logo.jpg}
+        \end{figure}
+
+        \vspace*{1\baselineskip}
+
+        \vspace{0.75\baselineskip}
+
+        \vspace{0.5\baselineskip}
+        {KIV/VSS Semester Project}
+
+        {\LARGE\sc Benchmarking A Payment Terminal Managemenent Server \\}
+
+        \vspace{4\baselineskip}
+
+        \vspace{0.5\baselineskip}
+
+        {\sc\Large Stanislav Král \\}
+        \vspace{0.5\baselineskip}
+        {A20N0091P}
+
+        \vfill
+
+        {\sc Západočeská univerzita v Plzni\\
+        Fakulta aplikovaných věd}
+
+    \end{titlepage}
+
+    % TOC
+    \tableofcontents
+    \pagebreak
+
+\section{Tools for benchmarking web applications}
+
+With the number of people with access to the Internet continuously rising the usage load of web applications is obviously rising too and the need for scalable web technologies and architectures is higher than ever.
+While today's web developers are aware of this they are also in need of tools that are able to measure application's performance and to discover its possible limits.
+
+Many free and paid tools for benchmarking web applications are available today.
+One example of such free tool is Apache's open-source program \textbf{ab} (also known as ApacheBench) that has been available since 1996 and was originally used to test the Apache HTTP Server.
+However, it's generic enough to test any web server supporting HTTP protocols.
+One of its main disadvantages is the fact that it allows tests to be run only in one thread which limits concurrency and may create bottlenecks.
+This problem can be overcome by running multiple instances of the program.
+
+Shortly after the release of ApacheBench Apache releases another tool for benchmarking web applications -- \textbf{Apache JMeter}.
+Unlike its predecessor Apache JMeter comes with a rich GUI and feature set and is capable of measuring the performance not only of HTTP servers but also of other services such as JDBC database connections, FTP, LDAP or JMS.
+Out of the box it supports test parametrization, response validation, per-thread cookies, integration with the Selenium test framework and variety of useful reports.
+JMeter architecture is focused around plugins and missing features not present in the base version of the program are added via official or community plugins.
+
+With the promise of making the process of defining and writing load tests simpler and more intiutive for developers the open-source load testing tool \textbf{k6} is released in 2016.
+It is used for testing the performance and realiability of web APIs, microservices and websites.
+When using this tool developers use the Javascript language to write benchmark scenarios, where each simulated user (that makes request to the application put under a test) is represented by a Virtual User entity and its behaviour can be defined in a single Javascript method.
+The number of users can be easily defined in such way that it will be changing during the test as needed by the test scenario (e.g., linear growth in the first 60 seconds followed by a constant number of users).
+Once the test is finished the user is presented with a brief summary containing useful stats such as the average duration of each stage of performed HTTP requests.
+In addition to the tool the team behind it offers a paid online service that allows for running load tests from the cloud with the possibility of creating advanced reports an summaries.
+Even though running the tool locally is sufficient for most of the time and enough stress can be put on the tested server the reports of tests are missing some important information such as a chart with the average server response time during the test.
+Luckily the tool makes it possible to serialize all events that occur during the test to a JSON file.
+Such file can be then processed by our own software in order to find missing information. 
+
+\end{document}
+
