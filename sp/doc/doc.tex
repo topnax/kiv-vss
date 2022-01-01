@@ -139,5 +139,34 @@ Even though running the tool locally is sufficient for most of the time and enou
 Luckily the tool makes it possible to serialize all events that occur during the test to a JSON file.
 Such file can be then processed by our own software in order to find missing information. 
 
+
+\section{Automatization of terminal management}
+As introduced in the assignment of this semester project the web application to be put under the test is the Dotypay Portal site that is used for the management of Dotypay payment terminals.
+
+For the purpose of running benchmarks the Dotypay Portal development team has prepared a dedicated application instance running on the same configuration as the production instance.
+However, the application's data in the instance to be tested were copied from the development environment.
+This means that it was required to generate and submit additional data to the instance as it was excepted that the number of terminals present in the database (about 250 terminals)  would not be enough for putting enough stress on the server.
+
+Because the server does not expose a REST API for creating new terminals the only way of filling the database with more data was to login into the application, go to the page where the form for creating new terminals is located and fill in individual terminal data. 
+The initial goal was to have at least two thousand terminals present in the database.
+Adding this many terminals manually would be close to unfeasable and a need for task automatization emerged.
+
+
+\subsection{Writing an automatization script in Python}
+Since the author of this semester project had previous experience with testing web applications using the Python language and the Playwright library\footnote{\url{https://playwright.dev/}} he chose write an automatization script using them.
+
+It was soon discovered that not only the creation of terminals was required, but so was their activation, since only after terminals are activated they can communicate with the server using a unique API key that is assigned to them.
+
+After a quick analysis of the application's UI interface and it's REST API (documented using OpenAPI specification) a Python script was created, that automates the process of logging in and creating a desired number of terminals.
+Another feature of the script is that all terminals specified by a range of identifiers are activated.
+The process of activation may include deactivation that is done using the UI interface and a REST API call that, if successful, yields an API key.
+
+
+\subsection{Gathering terminal data}
+Before running any benchmarks it was not only required to have a set of all terminal API keys of terminals present in the database but also to have other terminal data, such as their ID or serial number because it was required by some API calls present in test scenarios.
+Even though this data could be accessed from the application's UI it would require another automatization script.
+Because of that the author of this semester project was granted an access and login credentials to the instance's MS SQL database from which, using a simple SQL query, he was able to fetch all required data when needed.
+
+
 \end{document}
 
