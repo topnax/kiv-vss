@@ -24,6 +24,7 @@
 \usetikzlibrary{shapes,positioning,matrix,arrows}
 
 \newcommand{\img}[1]{(see figure \ref{#1})}
+\newcommand\todo[1]{\textcolor{red}{#1}}
 
 \definecolor{pblue}{rgb}{0.13,0.13,1}
 \definecolor{pgreen}{rgb}{0,0.5,0}
@@ -141,6 +142,7 @@ Such file can be then processed by our own software in order to find missing inf
 
 
 \section{Automatization of terminal management}
+
 As introduced in the assignment of this semester project the web application to be put under the test is the Dotypay Portal site that is used for the management of Dotypay payment terminals.
 
 For the purpose of running benchmarks the Dotypay Portal development team has prepared a dedicated application instance running on the same configuration as the production instance.
@@ -153,6 +155,7 @@ Adding this many terminals manually would be close to unfeasable and a need for 
 
 
 \subsection{Writing an automatization script in Python}
+
 Since the author of this semester project had previous experience with testing web applications using the Python language and the Playwright library\footnote{\url{https://playwright.dev/}} he chose write an automatization script using them.
 
 It was soon discovered that not only the creation of terminals was required, but so was their activation, since only after terminals are activated they can communicate with the server using a unique API key that is assigned to them.
@@ -163,10 +166,37 @@ The process of activation may include deactivation that is done using the UI int
 
 
 \subsection{Gathering terminal data}
+
 Before running any benchmarks it was not only required to have a set of all terminal API keys of terminals present in the database but also to have other terminal data, such as their ID or serial number because it was required by some API calls present in test scenarios.
 Even though this data could be accessed from the application's UI it would require another automatization script.
 Because of that the author of this semester project was granted an access and login credentials to the instance's MS SQL database from which, using a simple SQL query, he was able to fetch all required data when needed.
 
 
-\end{document}
+\section{Benchmark scenarios}
 
+In order to be able to measure application's ability to handle a higher amount of terminals it was required to prepare one or more benchmark scenarios that attempt to simulate real terminal behaviour.
+
+
+\subsection{Terminal synchronization}
+All terminals periodically perform a synchronization with the Dotypay portal.
+This behaviour was described in the assignment but after further analysis of the Dotypay Payment Terminal application's source code it was soon discovered that the original description was quite shallow and the whole process of terminal synchronization involves more steps.
+Synchronization consists of calling Dotypay Portal API endpoints in the following order:
+
+\begin{itemize}
+    \item \texttt{files} endpoint -- an endpoint that returns all files that the terminal should download (may involve any important documents or other files),
+    \item \texttt{status} endpoint -- an endpoint that is used to report the status of the terminal to the server,
+    \item \texttt{tasks} endpoint -- an endpoint that returns tasks (apply new terminal configuration or upload required files) filtered by their status (\texttt{CREATED}, \texttt{RECEIVED}, \texttt{IN\_PROGRESS}),
+    \item and \texttt{apps} endpoint -- an endpoint that returns links to all APK files (Android application package file) to be downloaded and installed by the terminal filtered by their type (Launcher Application package, mandatory applications or optional applications).
+\end{itemize}
+
+Once terminal performs a synchronization it waits for a random duration of time ranging from 9 to 11 minutes before performing another synchronization.
+
+\todo{Make sure constraints are correct}
+
+The aim is to simulate at least 10 000 terminals periodically performing synchronization for the duration of 2 hours.
+
+\subsection{Submission of performed transactions}
+
+\todo{Add description}
+
+\end{document}
