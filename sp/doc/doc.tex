@@ -49,6 +49,22 @@
     tabsize=3
 }
 
+%define Javascript language
+\lstdefinelanguage{JavaScript}{
+    keywords={const, typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+    keywordstyle=\color{blue}\bfseries,
+    ndkeywords={default, class, export, boolean, throw, implements, import, this},
+    ndkeywordstyle=\color{darkgray}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{pgreen}\ttfamily,
+    stringstyle=\color{mauve}\ttfamily,
+    morestring=[b]',
+    morestring=[b]"
+}
+
 \lstset{
     frame=tb,
     language=Python,
@@ -74,8 +90,8 @@
 \begin{document}
 	% this has to be placed here, after document has been created
 	% \counterwithout{lstlisting}{chapter}
-	\renewcommand{\lstlistingname}{Ukázka kódu}
-	\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+	\renewcommand{\lstlistingname}{Source code example}
+	\renewcommand{\lstlistlistingname}{List of code example}
     \begin{titlepage}
 
         \centering
@@ -202,8 +218,61 @@ The aim is to simulate at least 10 000 terminals periodically performing synchro
 
 \section{Benchmark scenario implementation with k6}
 
-\todo{TBD}
+Benchmark scenarios are easily implemented with the k6 tool as it uses the Javascript language for the definition of load tests.
+The developer only has to make desired HTTP requests to endpoints to be put to test and define the number of VUs (virtual users).
+Additionally, if required, the HTTP response of the request can be further inspected to check whether the data received is correct.
 
+\begin{lstlisting}[language=JavaScript, caption={Definition of first three HTTP requests calls in the Terminal synchronization benchmark scenario},captionpos=b]
+export default function() {
+    const terminal = ... // determine which terminal to use 
+
+    // files request
+    const files_response = http.get(files_endpoint + terminal.api_token);
+    check_response(files_response, terminal);
+
+    // terminal status request
+    const headers = { 'Content-Type': 'application/json' };
+    const status_response = http.put(status_endpoint + terminal.api_token, JSON.stringify(status_endpoint_body), { headers: headers });
+    check_response(status_response, terminal);
+
+    // tasks created
+    const tasks_created_response = http.get(tasks_created_endpoint + terminal.api_token);
+    check_response(tasks_created_response, terminal);
+
+    // ... "tasks received", "tasks in_progress", "apps Launcher", "apps Mandatory" and "apps optional" HTTP requests
+}
+\end{lstlisting}
+
+The number of VUs is defined in the attribute \texttt{stages} of the \texttt{options} object:
+
+\begin{lstlisting}[language=JavaScript, caption={Definition of the number of VUs during a load test},captionpos=b]
+
+export const options = {
+    stages: [
+        { duration: '120s', target: 1000 }, // build up to 1000 VUs during the first two minutes
+        { duration: '240s', target: 1000 }, // mantain 1000 VUs in the next four minutes
+        { duration: '60s', target: 0 }, // reduce the number of VUs to zero in the next minute and finish the test
+    ],
+
+    ...
+};
+
+\end{lstlisting}
+
+Additionaly the developer can specify thresholds which are a pass/fail criteria used to specify the performance expectations of the system under test.
+All Dotypay Portal load tests have a threshold set that marks the test as passed only when the error rate of HTTP requests is lower than 1\%.
+
+\begin{lstlisting}[language=JavaScript, caption={Threshold configuration for created load tests},captionpos=b]
+export const options = {
+    ... ,
+    thresholds: {
+        http_req_failed: ['rate<0.01'], // http error rate should be smaller than 1%
+    }
+    
+};
+\end{lstlisting}
+
+\subsection{Simulating large number of terminals}
 
 \section{Test results visualization}
 
@@ -227,7 +296,6 @@ After all measurement objects have been parsed and processed a plot using the \t
 The script also allows for exporting the created chart into a SVG file.
 
 Due to the lack of free k6 test results visualization tools publicly available the author has decided to publish this script on GitHub \todo{repo link}.
-
 
 
 \end{document}
