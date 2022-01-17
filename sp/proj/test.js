@@ -143,9 +143,3 @@ export default function() {
     }
 }
 
-function save_transaction(http, uuid) {
-    // default apps request
-    const save_tx_ = http.get(default_apps_endpoint + terminal.api_token);
-    check_response(default_apps_response, terminal);
-}
-
