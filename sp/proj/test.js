@@ -4,34 +4,43 @@ import { SharedArray } from 'k6/data';
 import { vu } from 'k6/execution';
 import { check } from 'k6';
 import { status_endpoint_body } from "./status_endpoint_data.js";
+import { uuid } from "./uuid.js";
+import { get_save_tx_endpoint_data } from "./save_tx_endpoint_data.js";
 
 const base_url = __ENV.PORTAL_BASE_URL;
+const send_transactions = __ENV.SEND_TRANSACTIONS == "true";
 
-// FILES endpoint
+// FILES endpoint (GET)
 const files_endpoint = base_url + "/api/device/files?apiToken=";
 
-// TASKS endpoints
+// TASKS endpoints (GET)
 const tasks_received_endpoint = base_url + "/api/device/tasks?status=RECEIVED&apiToken=";
 const tasks_in_progress_endpoint = base_url + "/api/device/tasks?status=IN_PROGRESS&apiToken=";
 const tasks_created_endpoint = base_url + "/api/device/tasks?status=CREATED&apiToken=";
 
-// STATUS endpoint
+// STATUS endpoint (PUT)
 const status_endpoint = base_url + "/api/device/status?apiToken=";
 
-// LAUNCHER app endpoint
+// LAUNCHER app endpoint (GET)
 const launcher_endpoint = base_url + "/api/apps/launcher?sn=";
 
-// DEFAULT apps endpoint
+// DEFAULT apps endpoint (GET)
 const default_apps_endpoint = base_url + "/api/apps/list/default?apiToken=";
 
-// mandatory apps endpoint
+// mandatory apps endpoint (GET)
 const mandatory_apps_endpoint = base_url + "/api/apps/list/mandatory?apiToken=";
+
+// save transactions endpoint (POST)
+const save_tx_endpoint = base_url + "/api/transactions?apiToken=";
 
 
 // device synchronization happens every 9-11 minutes
 const base_period = 9 * 60; // 9 minutes
 const random_period = 2 * 60; // 2 minutes
 const terminals_per_vu = 10;
+
+// max transactions per terminal
+const max_transactions_per_terminal = 4;
 
 
 // not using SharedArray here will mean that the code in the function call (that is what loads and
@@ -40,13 +49,13 @@ const terminals_per_vu = 10;
 const data = new SharedArray('some data name', function () {
   return JSON.parse(open('./data/api_keys_3.json'));
 });
+const json_headers = { 'Content-Type': 'application/json' };
 
 export const options = {
     discardResponseBodies: true,
     stages: [
         { duration: '660s', target: 1000 },
-        { duration: '1980s', target: 1000 },
-        { duration: '660s', target: 0 },
+        { duration: '3600s', target: 1000 },
         { duration: '660s', target: 0 }
     ],
     thresholds: {
@@ -76,9 +85,11 @@ export default function() {
     // - check apps Mandatory
 
     const sleep_time = base_period + Math.random() * random_period;
+
+    const sleep_time_per_vu = sleep_time / terminals_per_vu;
+
     for (let i = 0; i < terminals_per_vu; i++) {
         let terminal_index = ((vu.idInTest - 1) * terminals_per_vu + i) % data.length;
-        console.log(`${vu.idInTest} - ${terminal_index}`);
         const terminal = data[terminal_index];
 
         // files request
@@ -86,8 +97,7 @@ export default function() {
         check_response(files_response, terminal);
 
         // terminal status request
-        const headers = { 'Content-Type': 'application/json' };
-        const status_response = http.put(status_endpoint + terminal.api_token, JSON.stringify(status_endpoint_body), { headers: headers });
+        const status_response = http.put(status_endpoint + terminal.api_token, status_endpoint_body, { headers: json_headers });
         check_response(status_response, terminal);
 
         // tasks created
@@ -114,7 +124,28 @@ export default function() {
         const mandatory_apps_response = http.get(mandatory_apps_endpoint + terminal.api_token);
         check_response(mandatory_apps_response, terminal);
 
-        sleep(sleep_time / terminals_per_vu);
+        if (send_transactions) {
+            let transactions_to_be_sent = Math.random() * (max_transactions_per_terminal + 1);
+            for (let j = 0; j < transactions_to_be_sent; j++) {
+                // send a transaction with an unique UUID
+                const data = get_save_tx_endpoint_data(uuid(), new Date());
+                const save_tx_response = http.post(save_tx_endpoint + terminal.api_token, JSON.stringify(data), {
+                    headers: json_headers
+                });
+
+                check_response(save_tx_response, terminal);
+
+                sleep(sleep_time_per_vu / transactions_to_be_sent);
+            }
+        } else {
+            sleep(sleep_time_per_vu);
+        }
     }
+}
+
+function save_transaction(http, uuid) {
+    // default apps request
+    const save_tx_ = http.get(default_apps_endpoint + terminal.api_token);
+    check_response(default_apps_response, terminal);
 }
 

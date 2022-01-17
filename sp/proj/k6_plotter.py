@@ -95,6 +95,7 @@ def display_chart(metric_data_avg, metric_data_max, vus_data, watched_metric):
 
     # show the chart
     plt.title("k6 load test results chart")
+    plt.savefig("test.svg", format="svg")
     plt.show()
 
 
