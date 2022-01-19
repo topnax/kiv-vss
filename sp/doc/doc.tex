@@ -18,7 +18,7 @@
 \usepackage{subcaption}
 \usepackage{amsfonts}
 \usepackage{wrapfig}
-
+\usepackage{listingsutf8}
 
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 \usetikzlibrary{shapes,positioning,matrix,arrows}
@@ -80,7 +80,38 @@
     stringstyle=\color{mauve},
     breaklines=true,
     breakatwhitespace=true,
-    tabsize=3
+    tabsize=3,
+     literate=%
+         {á}{{\'a}}1
+         {í}{{\'i}}1
+         {é}{{\'e}}1
+         {ý}{{\'y}}1
+         {ú}{{\'u}}1
+         {ó}{{\'o}}1
+         {ě}{{\v{e}}}1
+         {š}{{\v{s}}}1
+         {č}{{\v{c}}}1
+         {ř}{{\v{r}}}1
+         {ž}{{\v{z}}}1
+         {ď}{{\v{d}}}1
+         {ť}{{\v{t}}}1
+         {ň}{{\v{n}}}1                
+         {ů}{{\r{u}}}1
+         {Á}{{\'A}}1
+         {Í}{{\'I}}1
+         {É}{{\'E}}1
+         {Ý}{{\'Y}}1
+         {Ú}{{\'U}}1
+         {Ó}{{\'O}}1
+         {Ě}{{\v{E}}}1
+         {Š}{{\v{S}}}1
+         {Č}{{\v{C}}}1
+         {Ř}{{\v{R}}}1
+         {Ž}{{\v{Z}}}1
+         {Ď}{{\v{D}}}1
+         {Ť}{{\v{T}}}1
+         {Ň}{{\v{N}}}1                
+         {Ů}{{\r{U}}}1    
 }
 
 
@@ -194,6 +225,7 @@ In order to be able to measure application's ability to handle a higher amount o
 
 
 \subsection{Terminal synchronization}
+
 All terminals periodically perform a synchronization with the Dotypay portal.
 This behaviour was described in the assignment but after further analysis of the Dotypay Payment Terminal application's source code it was soon discovered that the original description was quite shallow and the whole process of terminal synchronization involves more steps.
 Synchronization consists of calling Dotypay Portal API endpoints in the following order:
@@ -207,14 +239,81 @@ Synchronization consists of calling Dotypay Portal API endpoints in the followin
 
 Once terminal performs a synchronization it waits for a random duration of time ranging from 9 to 11 minutes before performing another synchronization.
 
-\todo{Make sure constraints are correct}
-
-The aim is to simulate at least 10 000 terminals periodically performing synchronization for the duration of 2 hours.
+The aim is to simulate at least 10 000 terminals periodically performing synchronization for the duration of 1 hour.
 
 \subsection{Submission of performed transactions}
 
-\todo{Add description}
+Every transaction that is performed by a terminal is submitted to the Dotypay portal so that it can be later used for sales analysis.
+Transactions are submitted by calling the \texttt{transactions} endpoint with the transaction data in the request body.
 
+The \texttt{transactions} endpoint allows for submitting one or more transactions, however, terminals usually submit only one transaction per request since they do so right after a transaction is performed.
+Batch submission is done only when a previous transaction submission has failed and the terminal has already performed another transaction.
+In that that case multiple transactions are sent in one request.
+
+\begin{lstlisting}[language=JavaScript, caption={Transaction submission request body},captionpos=b, basicstyle=\tiny]
+{
+  "transactions": [
+    {
+      "aid": "A0000000041010",
+      "amount": 0.01,
+      "appType": "mock",
+      "applicationName": "DEBIT MASTERCARD",
+      "batchId": "1",
+      "batchUuid": "ebb92f0e-abd1-425b-9a58-1f50d1f5d580",
+      "binAttributes": {
+        "cardType": "Mastercard"
+      },
+      "cardBrand": "MASTER",
+      "cardExpiration": "2411",
+      "cardPresentation": "CLESS",
+      "channel": "MANUAL",
+      "creationTime": "2022-01-2T01:30:00.000-05:00",
+      "currency": "EUR",
+      "foreignCard": false,
+      "maskedPan": "557xxxxxxxxxxxx3",
+      "merchantId": "98916062994",
+      "metadata": {},
+      "panHash": "GSXHcXkY0hSSKBABIN7inOJeLynk=",
+      "pinEntered": false,
+      "receiptHeader": "Solitea Pay, s.r.o.\nDrobného 555/49\nBrno\n60200\nIČO: 25595091\nTID: TEST001   ",
+      "receiptNumber": "0010111194",
+      "receivedTime": "2022-01-2T01:30:00.000-05:00",
+      "responseMnspPacket": "ARMwMDAw...W66NtVveA",
+      "resultCode": 0,
+      "sendTime": "2022-01-2T01:30:00.000-05:00",
+      "signatureRequired": false,
+      "spdhApprovalCode": "MOCK-3087349",
+      "spdhCurrentDate": "211229",
+      "spdhCurrentTime": "182112",
+      "spdhResponseCode": 0,
+      "spdhSequenceNumber": "1234567890",
+      "spdhTransmissionNumber": "355",
+      "state": "PAYED",
+      "tid": "TEST001",
+      "transactionType": "PAYMENT",
+      "user": {
+        "name": "Pokladník",
+        "number": 1,
+        "role": "CASHIER"
+      },
+      "uuid": "123e4567-e89b-12d3-a456",
+      "verifiedByDevice": false
+    }
+  ]
+}
+\end{lstlisting}
+
+By having a look at the application's production data it can be seen that in average every terminal performs 11 transactions per day.
+
+\subsection{Downloading application installation archive}
+
+Whenever there is an update to applications installed on the terminal or a new mandatory application is present in the terminal's configuration, the terminal then proceeds to download the application's installation archive\footnote{Android system uses APK (Android Package) files to distribute installation archives.}.
+
+Since there has already been an incident in the past related to application's unavailability due to multiple terminals downloading an application that has received an update, it is required to find whether this issue has been resolved. 
+
+A benchmark scenario that will help to test application's ability to serve application installation files is quite simple: each simulated terminal will download an APK file using the \texttt{/api/apps/apk/{package\_name}/{name}/{version}} endpoint.
+
+The APK file to be downloaded by terminals should be large enough so that it is easy to have all terminals downloading it at the same time.
 
 \section{Benchmark scenario implementation with k6}
 
@@ -274,6 +373,19 @@ export const options = {
 
 \subsection{Simulating large number of terminals}
 
+Since each individual VU opens a new HTTP connection there is a limit to the maximum number of VUs the host machine can operate.
+In order to help overcoming this limitation it is required to simulate multiple terminals per one VU instance.
+
+\begin{lstlisting}[language=JavaScript, caption={Multiple terminals per one VU},captionpos=b]
+export default function() {
+    for (let i = 0; i < terminals_per_vu; i++) {
+        // terminal behaviour body
+    }
+}
+\end{lstlisting}
+
+The increase of the number of terminals one host machine can simulate is possible because the k6 tool attempts to reuse available HTTP connections within one VU.
+
 \section{Test results visualization}
 
 As mentioned in section \ref{intro} the k6 tool does not allow for creating charts visualizing test results data when run locally.
@@ -299,4 +411,8 @@ Due to the lack of free k6 test results visualization tools publicly available t
 
 \section{Results}
 Dotypay Portal devices page takes 6+ seconds when there are more than 8000 terminals.
+
+It should also be noted that after adding 7500 terminals to the application's database, the loading time of the table\footnote{A HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from previously measured 1 second in average.
+The cause of this slowdown has not been identified yet and the team at Dotypay will further investigate it.
+
 \end{document}
