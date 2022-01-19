@@ -8,9 +8,9 @@ const base_url = __ENV.PORTAL_BASE_URL;
 export const options = {
     discardResponseBodies: true,
     stages: [
-        { duration: '60s', target: 1 },
-        { duration: '60s', target: 1 },
-        { duration: '0s', target: 0 }
+        { duration: '60s', target: 250 },
+        { duration: '240s', target: 250 },
+        { duration: '10s', target: 0 }
     ],
     thresholds: {
         http_req_failed: ['rate<0.01'], // http errors should be less than 1%
@@ -29,6 +29,11 @@ export default function() {
     check(apk_response, {
       'status is 200': (r) => r.status === 200
     });
-    sleep(1000);
+
+    if (apk_response === 200) {
+        console.log("APK successfully downloaded!!!");
+    }
+
+    sleep(1);
 }
 

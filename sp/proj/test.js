@@ -54,7 +54,7 @@ const json_headers = { 'Content-Type': 'application/json' };
 export const options = {
     discardResponseBodies: true,
     stages: [
-        { duration: '660s', target: 1000 },
+        { duration: '900s', target: 1000 },
         { duration: '3600s', target: 1000 },
         { duration: '660s', target: 0 }
     ],
