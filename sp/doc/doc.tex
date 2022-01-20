@@ -358,7 +358,7 @@ export const options = {
 
 \end{lstlisting}
 
-Additionaly the developer can specify thresholds which are a pass/fail criteria used to specify the performance expectations of the system under test.
+Additionally, the developer can specify thresholds which are a pass/fail criteria used to specify the performance expectations of the system under test.
 All Dotypay Portal load tests have a threshold set that marks the test as passed only when the error rate of HTTP requests is lower than 1\%.
 
 \begin{lstlisting}[language=JavaScript, caption={Threshold configuration for created load tests},captionpos=b]
@@ -393,6 +393,9 @@ export default function() {
 \end{lstlisting}
 
 The increase of the number of terminals one host machine can simulate is possible because the k6 tool attempts to reuse available HTTP connections within one VU.
+
+\subsection{Downloading application installation archive}
+\todo{Description}
 
 \section{Test results visualization}
 
@@ -453,7 +456,7 @@ This is somewhat expected as the first scenario involves more HTTP requests thus
 \begin{figure}[!ht]
     \centering 
     \includegraphics[width=1\textwidth]{img/node-cpu-usage.png}
-    \caption{A screenshot of the CPU utilization chart taken from the AWS node dashboard.}
+    \caption{A screenshot of the CPU utilization chart taken from the AWS node dashboard during terminal synchronization load test.}
     \label{fig:cpu-usage-1}
 \end{figure}
 
@@ -467,6 +470,33 @@ One simulated terminal submits about 12 transactions \textbf{per hour} in averag
 In conclusion, both tests passed successfully and the server always managed to return a valid response.
 Even though the maximum response time has been thoroughly spiking above 1000 milliseconds the average response time at any given time during the test was always acceptable.
 
+
+\subsection{Downloading application installation archive}
+
+Running load tests that follow a scenario of modeling terminals downloading an APK file yielded interesting results.
+The initial configuration was to gradually start up 250 terminals in 120 seconds and once started, every terminal begins to download an application installation archive\footnote{All terminals were downloading one shared file.}.
+
+During the startup, when about 200 terminals were downloading an APK file, non-success HTTP request response were being returned by the server due to a timeout error.
+In order to prevent server failure and crash, the test was immediately cancelled.
+
+After a brief delay, the test was started again, however, with very similar results.
+Timeout errors occured once again at about 205 active terminals.
+
+During the third load test, at 206 active terminals, timeout errors were received, the test was cancelled, but the server presumably crashed and failed to answer to any other requests that followed.
+Even a request to the login page of the application failed to be processed and no response from the server was received. 
+
+In addition to downloading APK files, a measurement of response times of the login page load times was being made.
+As the number of active terminals increased, load times also did.
+At the end of the last test it took more than 56 seconds to receive the last response containing login page data, and after that, the server became unavailable.
+
+This behaviour is most likely related to a high CPU usage caused by multiple terminals downloading an APK file.
+
+\begin{figure}[!ht]
+    \centering 
+    \includegraphics[width=1\textwidth]{example-image-a}
+    \caption{A screenshot of the CPU utilization chart taken from the AWS node dashboard during load testing of the APK file endpoint.}
+    \label{fig:cpu-usage-2}
+\end{figure}
 
 \section{Summary}
 Both load tests following the terminal synchronization and transaction submission scenarios did not cause any significant slowdown of the application.
