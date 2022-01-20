@@ -395,7 +395,10 @@ export default function() {
 The increase of the number of terminals one host machine can simulate is possible because the k6 tool attempts to reuse available HTTP connections within one VU.
 
 \subsection{Downloading application installation archive}
-\todo{Description}
+Implementation of such scenario is quite simple as it consists only of a single request to an URL of the APK file endpoint.
+
+During the test, when a terminal finishes downloading a file, it should not start another iteration and begin downloading the file again.
+This behaviour can be achieved by changing the \texttt{iterations} attribute of the \texttt{scenario} object in the configuration\footnote{\url{https://k6.io/docs/using-k6/scenarios/executors/per-vu-iterations/}}.
 
 \section{Test results visualization}
 
