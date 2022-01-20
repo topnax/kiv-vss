@@ -244,9 +244,9 @@ The aim is to simulate at least 10 000 terminals periodically performing synchro
 \subsection{Submission of performed transactions}
 
 Every transaction that is performed by a terminal is submitted to the Dotypay portal so that it can be later used for sales analysis.
-Transactions are submitted by calling the \texttt{transactions} endpoint with the transaction data in the request body.
+Transactions are submitted by calling the \texttt{/api/transactions} endpoint with the transaction data in the request body.
 
-The \texttt{transactions} endpoint allows for submitting one or more transactions, however, terminals usually submit only one transaction per request since they do so right after a transaction is performed.
+The \texttt{/api/transactions} endpoint allows for submitting one or more transactions, however, terminals usually submit only one transaction per request since they do so right after a transaction is performed.
 Batch submission is done only when a previous transaction submission has failed and the terminal has already performed another transaction.
 In that that case multiple transactions are sent in one request.
 
@@ -303,7 +303,7 @@ In that that case multiple transactions are sent in one request.
 }
 \end{lstlisting}
 
-By having a look at the application's production data it can be seen that in average every terminal performs 11 transactions per day.
+By having a look at the available production data of the application it was discovered that in average every terminal performs 11 transactions per day.
 
 \subsection{Downloading application installation archive}
 
@@ -371,6 +371,14 @@ export const options = {
 };
 \end{lstlisting}
 
+
+\subsection{Transaction submission}
+In order to simulate the submission of transactions the terminal synchronization scenario implementation has been extended so that when synchronization is finished the terminal makes several HTTP requests to the \texttt{/api/transactions} endpoint with sample transaction data.
+Each request data contains a UUID and the current date.
+
+The number of transactions submitted per one terminal iteration is randomly generated and ranges from 1 to 4 (uniform distribution).
+Based on the data from production environment the total number of transactions one terminal submits in one hour of simulation is higher than the number a real terminal submits.
+
 \subsection{Simulating large number of terminals}
 
 Since each individual VU opens a new HTTP connection there is a limit to the maximum number of VUs the host machine can operate.
@@ -410,9 +418,66 @@ The script also allows for exporting the created chart into a SVG file.
 Due to the lack of free k6 test results visualization tools publicly available the author has decided to publish this script on GitHub \todo{repo link}.
 
 \section{Results}
-Dotypay Portal devices page takes 6+ seconds when there are more than 8000 terminals.
+
+\subsection{Terminal synchronization and transaction submission}
+During load tests following terminal synchronization and transaction submission scenarios 10000 terminals have been simulated for a duration of one hour.
+
+First test started on 17th of January at around 8:50am and involved both terminal synchronization and submission of transactions.
+In order to distribute terminal requests the number of terminals gradually increased from 0 to 10000 in the first 11 minutes of the test.
+
+\begin{figure}[!ht]
+    \centering 
+    \includegraphics[width=1\textwidth]{pdf/avg-waiting-time-1.pdf}
+    \caption{A chart visualizing results of the first load test.}
+    \label{fig:waiting-time-1}
+\end{figure}
+
+The figure \ref{fig:waiting-time-1} contains a chart which plots the average response time (\texttt{avg http\_req\_waiting}) of all HTTP requests that have finished at a given time (granularity is one minute).
+The chart also plots the maximum HTTP request response time (\texttt{max http\_req\_waiting}) as well as the number of running VUs (\texttt{VU count})\footnote{Note that one VU simulates 10 terminals.}.
+
+By having a look at the chart \ref{fig:waiting-time-1} it can be seen that the server response time was not increasing during the 1 hour test.
+This might indicate that no obvious memory leak is present in the handling logic of tested endpoints.
+
+Moments later after the first load test has finished another load test following terminal synchronization scenario without submission of transactions was started.
+
+\begin{figure}[!ht]
+    \centering 
+    \includegraphics[width=1\textwidth]{pdf/avg-waiting-time-2.pdf}
+    \caption{A chart visualizing results of the second load test.}
+    \label{fig:waiting-time-2}
+\end{figure}
+
+Gathered results are comparable to the results of the first test, however, a slightly smaller spikes in the maximum HTTP response time can be seen.
+This is somewhat expected as the first scenario involves more HTTP requests thus putting more stress on the tested server than the second test.
+
+\begin{figure}[!ht]
+    \centering 
+    \includegraphics[width=1\textwidth]{img/node-cpu-usage.png}
+    \caption{A screenshot of the CPU utilization chart taken from the AWS node dashboard.}
+    \label{fig:cpu-usage-1}
+\end{figure}
+
+To further support the claim that the first test was more demanding a screenshot of the server's CPU utilization is shown in the figure \ref{fig:cpu-usage-1}.
+The CPU utilization during the first test went all the way up to about 44\% and then slowly settled down at around 37\%.
+During the second test the CPU utilization of the server was hovering at around 34\%.
+
+It can be expected that the server will eventually be able to operate more than 10000 terminals, because the server CPU was not even close to being fully utilized even though the number of transactions sent by one terminal was greater than what one production terminal sends in one hour.
+One simulated terminal submits about 12 transactions \textbf{per hour} in average as compared to a real production terminal that in average sends 11 transactions \textbf{per day}.
+
+In conclusion, both tests passed successfully and the server always managed to return a valid response.
+Even though the maximum response time has been thoroughly spiking above 1000 milliseconds the average response time at any given time during the test was always acceptable.
+
+
+\section{Summary}
+Both load tests following the terminal synchronization and transaction submission scenarios did not cause any significant slowdown of the application.
+If created scenarios do model reality precisely enough precision, then it could be said that the application will be able to operate atleast 10 000 terminals (as opposed to ~2500 terminals that it operates now).
+
+However, the application does not handle distribution of APK files well enough as it starts to return non-success HTTP response codes when more than 200 terminals are downloading a single APK file.
+In one occasion the server was unavailable for the next hours even after the load test has finished.
+One 
 
 It should also be noted that after adding 7500 terminals to the application's database, the loading time of the table\footnote{A HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from previously measured 1 second in average.
 The cause of this slowdown has not been identified yet and the team at Dotypay will further investigate it.
+
 
 \end{document}
