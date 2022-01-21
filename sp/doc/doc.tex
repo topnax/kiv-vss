@@ -163,7 +163,7 @@
 
 \section{Tools for benchmarking web applications}\label{intro}
 
-With the number of people with access to the Internet continuously rising the usage load of web applications is obviously rising too and the need for scalable web technologies and architectures is higher than ever.
+With the number of people with access to the Internet continuously rising, the usage load of web applications is obviously rising too and the need for scalable web technologies and architectures is higher than ever.
 While today's web developers are aware of this they are also in need of tools that are able to measure application's performance and to discover its possible limits.
 
 Many free and paid tools for benchmarking web applications are available today.
@@ -173,7 +173,7 @@ One of its main disadvantages is the fact that it allows tests to be run only in
 This problem can be overcome by running multiple instances of the program.
 
 Shortly after the release of ApacheBench Apache releases another tool for benchmarking web applications -- \textbf{Apache JMeter}.
-Unlike its predecessor Apache JMeter comes with a rich GUI and feature set and is capable of measuring the performance not only of HTTP servers but also of other services such as JDBC database connections, FTP, LDAP or JMS.
+Unlike its predecessor Apache JMeter comes with a rich GUI and feature set, and is capable of measuring the performance not only of HTTP servers but also of other services such as JDBC database connections, FTP, LDAP or JMS.
 Out of the box it supports test parametrization, response validation, per-thread cookies, integration with the Selenium test framework and variety of useful reports.
 JMeter architecture is focused around plugins and missing features not present in the base version of the program are added via official or community plugins.
 
@@ -182,8 +182,8 @@ It is used for testing the performance and realiability of web APIs, microservic
 When using this tool developers use the Javascript language to write benchmark scenarios, where each simulated user (that makes request to the application put under a test) is represented by a Virtual User entity and its behaviour can be defined in a single Javascript method.
 The number of users can be easily defined in such way that it will be changing during the test as needed by the test scenario (e.g., linear growth in the first 60 seconds followed by a constant number of users).
 Once the test is finished the user is presented with a brief summary containing useful stats such as the average duration of each stage of performed HTTP requests.
-In addition to the tool the team behind it offers a paid online service that allows for running load tests from the cloud with the possibility of creating advanced reports an summaries.
-Even though running the tool locally is sufficient for most of the time and enough stress can be put on the tested server the reports of tests are missing some important information such as a chart with the average server response time during the test.
+In addition to the tool the team behind it offers a paid online service that allows for running load tests from the cloud with the possibility of creating advanced reports and summaries.
+Even though running the tool locally is sufficient for most of the time and enough stress can be put on the tested server, the reports of tests are missing some important information such as a chart with the average server response time during the test.
 Luckily the tool makes it possible to serialize all events that occur during the test to a JSON file.
 Such file can be then processed by our own software for visualization. 
 
@@ -194,20 +194,20 @@ As introduced in the assignment of this semester project the web application to 
 
 For the purpose of running benchmarks the Dotypay Portal development team has prepared a dedicated application instance running on the same configuration as the production instance.
 However, the application's data in the instance to be tested were copied from the development environment.
-This means that it was required to generate and submit additional data to the instance as it was excepted that the number of terminals present in the database (about 250 terminals)  would not be enough for putting enough stress on the server.
+This means that it was required to generate and submit additional data to the instance as it was excepted that the number of terminals present in the database (about 250 terminals)  would not be enough for putting sufficient stress on the server.
 
-Because the server does not expose a REST API for creating new terminals the only way of filling the database with more data was to login into the application, go to the page where the form for creating new terminals is located and fill in individual terminal data. 
+Because the server does not expose a REST API for creating new terminals, the only way of filling the database with more data was to login into the application, go to the page where the form for creating new terminals is located and fill in individual terminal data. 
 The initial goal was to have at least two thousand terminals present in the database.
 Adding this many terminals manually would be close to unfeasable and a need for task automatization emerged.
 
 
 \subsection{Writing an automatization script in Python}
 
-Since the author of this semester project had previous experience with testing web applications using the Python language and the Playwright library\footnote{\url{https://playwright.dev/}} he chose write an automatization script using them.
+Since the author of this semester project had previous experience with testing web applications using the Python language and the Playwright library\footnote{\url{https://playwright.dev/}} he chose write an automatization script using these tools.
 
 It was soon discovered that not only the creation of terminals was required, but so was their activation, since only after terminals are activated they can communicate with the server using a unique API key that is assigned to them.
 
-After a quick analysis of the application's UI interface and it's REST API (documented using OpenAPI specification) a Python script was created, that automates the process of logging in and creating a desired number of terminals.
+After a quick analysis of the application's UI interface and its REST API (documented using OpenAPI specification) a Python script was created, that automates the process of logging in and creating a desired number of terminals.
 Another feature of the script is that all terminals specified by a range of identifiers are activated.
 The process of activation may include deactivation that is done using the UI interface and a REST API call that, if successful, yields an API key.
 
@@ -221,13 +221,13 @@ Because of that the author of this semester project was granted an access and lo
 
 \section{Benchmark scenarios}
 
-In order to be able to measure application's ability to handle a higher amount of terminals it was required to prepare one or more benchmark scenarios that attempt to simulate real terminal behaviour.
+In order to be able to measure application's ability to handle a higher number of terminals, it was required to prepare one or more benchmark scenarios that attempt to simulate real terminal behaviour.
 
 
 \subsection{Terminal synchronization}
 
 All terminals periodically perform a synchronization with the Dotypay portal.
-This behaviour was described in the assignment but after further analysis of the Dotypay Payment Terminal application's source code it was soon discovered that the original description was quite shallow and the whole process of terminal synchronization involves more steps.
+This behaviour was described in the assignment, but after further analysis of the Dotypay Payment Terminal application's source code it was soon discovered that the original description was quite shallow and the whole process of terminal synchronization involves more steps.
 Synchronization consists of calling Dotypay Portal API endpoints in the following order:
 
 \begin{itemize}
@@ -248,7 +248,7 @@ Transactions are submitted by calling the \texttt{/api/transactions} endpoint wi
 
 The \texttt{/api/transactions} endpoint allows for submitting one or more transactions, however, terminals usually submit only one transaction per request since they do so right after a transaction is performed.
 Batch submission is done only when a previous transaction submission has failed and the terminal has already performed another transaction.
-In that that case multiple transactions are sent in one request.
+In that case, multiple transactions are sent in one request.
 
 \begin{lstlisting}[language=JavaScript, caption={Transaction submission request body},captionpos=b, basicstyle=\tiny]
 {
@@ -303,7 +303,7 @@ In that that case multiple transactions are sent in one request.
 }
 \end{lstlisting}
 
-By having a look at the available production data of the application it was discovered that in average every terminal performs 11 transactions per day.
+By having a look at the available production data of the application it was discovered that in average, every terminal performs 11 transactions per day.
 
 \subsection{Downloading application installation archive}
 
@@ -321,7 +321,7 @@ Benchmark scenarios are easily implemented with the k6 tool as it uses the Javas
 The developer only has to make desired HTTP requests to endpoints to be put to test and define the number of VUs (virtual users).
 Additionally, if required, the HTTP response of the request can be further inspected to check whether the data received is correct.
 
-\begin{lstlisting}[language=JavaScript, caption={Definition of first three HTTP requests calls in the Terminal synchronization benchmark scenario},captionpos=b]
+\begin{lstlisting}[language=JavaScript, caption={Definition of first three HTTP requests calls in the terminal synchronization benchmark scenario},captionpos=b]
 export default function() {
     const terminal = ... // determine which terminal to use 
 
@@ -426,10 +426,10 @@ Due to the lack of free k6 test results visualization tools publicly available t
 \section{Results}
 
 \subsection{Terminal synchronization and transaction submission}
-During load tests following terminal synchronization and transaction submission scenarios 10000 terminals have been simulated for a duration of one hour.
+During load tests following terminal synchronization and transaction submission scenarios 10 000 terminals have been simulated for a duration of one hour.
 
-First test started on 17th of January at around 8:50am and involved both terminal synchronization and submission of transactions.
-In order to distribute terminal requests the number of terminals gradually increased from 0 to 10000 in the first 11 minutes of the test.
+First test started on 17th of January at around 8:50 am and involved both terminal synchronization and submission of transactions.
+In order to distribute terminal requests the number of terminals gradually increased from 0 to 10 000 in the first 11 minutes of the test.
 
 \begin{figure}[!ht]
     \centering 
@@ -467,7 +467,7 @@ To further support the claim that the first test was more demanding a screenshot
 The CPU utilization during the first test went all the way up to about 44\% and then slowly settled down at around 37\%.
 During the second test the CPU utilization of the server was hovering at around 34\%.
 
-It can be expected that the server will eventually be able to operate more than 10000 terminals, because the server CPU was not even close to being fully utilized even though the number of transactions sent by one terminal was greater than what one production terminal sends in one hour.
+It can be expected that the server will eventually be able to operate more than 10 000 terminals, because the server CPU was not even close to being fully utilized even though the number of transactions sent by one terminal was greater than what one production terminal sends in one hour.
 One simulated terminal submits about 12 transactions \textbf{per hour} in average as compared to a real production terminal that in average sends 11 transactions \textbf{per day}.
 
 In conclusion, both tests passed successfully and the server always managed to return a valid response.
@@ -514,7 +514,7 @@ The team at Dotypay will have to mitigate this issue as it may be very likely th
 Suppose a critical update to the payment application becomes available, it is required that all terminals receive this update as soon as possible.
 Currently, when an application update is released, it is distributed via a staged rollout to prevent excessive server load, but at the cost of slower deployment of a new version.
 
-It should also be noted that after adding 7500 terminals to the application's database using the created terminal management tool, the loading time of the table\footnote{A HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from previously measured 1 second in average.
+It should also be noted that once data of 10 000 terminals was present in the application's database, the loading time of the table\footnote{A HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from previously measured 1 second in average.
 The cause of this slowdown has not been identified yet and the team at Dotypay will further investigate it.
 
 The k6 tool proved itself to be a great tool for benchmarking web applications, as it allowed for easy definition and configuration of performant tests. 
