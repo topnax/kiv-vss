@@ -167,22 +167,22 @@ With the number of people with access to the Internet continuously rising, the u
 While today's web developers are aware of this they are also in need of tools that are able to measure application's performance and to discover its possible limits.
 
 Many free and paid tools for benchmarking web applications are available today.
-One example of such free tool is Apache's open-source program \textbf{ab} (also known as ApacheBench) that has been available since 1996 and was originally used to test the Apache HTTP Server.
+One example of such a free tool is Apache's open-source program \textbf{ab} (also known as ApacheBench) which has been available since 1996 and was originally used to test the Apache HTTP Server.
 However, it's generic enough to test any web server supporting HTTP protocols.
 One of its main disadvantages is the fact that it allows tests to be run only in one thread which limits concurrency and may create bottlenecks.
 This problem can be overcome by running multiple instances of the program.
 
 Shortly after the release of ApacheBench Apache releases another tool for benchmarking web applications -- \textbf{Apache JMeter}.
-Unlike its predecessor Apache JMeter comes with a rich GUI and feature set, and is capable of measuring the performance not only of HTTP servers but also of other services such as JDBC database connections, FTP, LDAP or JMS.
-Out of the box it supports test parametrization, response validation, per-thread cookies, integration with the Selenium test framework and variety of useful reports.
+Unlike its predecessor Apache JMeter comes with a rich GUI and feature set. It is also capable of measuring the performance not only of HTTP servers but also of other services such as JDBC database connections, FTP, LDAP or JMS.
+Out of the box, it supports test parameterization, response validation, per-thread cookies, integration with the Selenium test framework and a variety of useful reports.
 JMeter architecture is focused around plugins and missing features not present in the base version of the program are added via official or community plugins.
 
-With the promise of making the process of defining and writing load tests simpler and more intiutive for developers the open-source load testing tool \textbf{k6} is released in 2016.
-It is used for testing the performance and realiability of web APIs, microservices and websites.
-When using this tool developers use the Javascript language to write benchmark scenarios, where each simulated user (that makes request to the application put under a test) is represented by a Virtual User entity and its behaviour can be defined in a single Javascript method.
-The number of users can be easily defined in such way that it will be changing during the test as needed by the test scenario (e.g., linear growth in the first 60 seconds followed by a constant number of users).
+With the promise of making the process of defining and writing load tests simpler and more intuitive for developers the open-source load testing tool \textbf{k6} is released in 2016.
+It is used for testing the performance and reliability of web APIs, microservices and websites.
+When using this tool developers use the Javascript language to write benchmark scenarios, where each simulated user (that makes requests to the application put under a test) is represented by a Virtual User entity and its behaviour can be defined in a single Javascript method.
+The number of users can be easily defined in such a way that it will be changing during the test as needed by the test scenario (e.g., linear growth in the first 60 seconds followed by a constant number of users).
 Once the test is finished the user is presented with a brief summary containing useful stats such as the average duration of each stage of performed HTTP requests.
-In addition to the tool the team behind it offers a paid online service that allows for running load tests from the cloud with the possibility of creating advanced reports and summaries.
+In addition to the tool, the team behind it offers a paid online service that allows for running load tests from the cloud with the possibility of creating advanced reports and summaries.
 Even though running the tool locally is sufficient for most of the time and enough stress can be put on the tested server, the reports of tests are missing some important information such as a chart with the average server response time during the test.
 Luckily the tool makes it possible to serialize all events that occur during the test to a JSON file.
 Such file can be then processed by our own software for visualization. 
@@ -198,12 +198,12 @@ This means that it was required to generate and submit additional data to the in
 
 Because the server does not expose a REST API for creating new terminals, the only way of filling the database with more data was to login into the application, go to the page where the form for creating new terminals is located and fill in individual terminal data. 
 The initial goal was to have at least two thousand terminals present in the database.
-Adding this many terminals manually would be close to unfeasable and a need for task automatization emerged.
+Adding this many terminals manually would be close to unfeasible and a need for task automatization emerged.
 
 
 \subsection{Writing an automatization script in Python}
 
-Since the author of this semester project had previous experience with testing web applications using the Python language and the Playwright library\footnote{\url{https://playwright.dev/}} he chose write an automatization script using these tools.
+Since the author of this semester project had previous experience with testing web applications using the Python language and the Playwright library\footnote{\url{https://playwright.dev/}} he chose to write an automatization script using these tools.
 
 It was soon discovered that not only the creation of terminals was required, but so was their activation, since only after terminals are activated they can communicate with the server using a unique API key that is assigned to them.
 
@@ -216,17 +216,17 @@ The process of activation may include deactivation that is done using the UI int
 
 Before running any benchmarks it was not only required to have a set of all terminal API keys of terminals present in the database but also to have other terminal data, such as their ID or serial number because it was required by some API calls present in test scenarios.
 Even though this data could be accessed from the application's UI it would require another automatization script.
-Because of that the author of this semester project was granted an access and login credentials to the instance's MS SQL database from which, using a simple SQL query, he was able to fetch all required data when needed.
+Because of that, the author of this semester project was granted access and login credentials to the instance's MS SQL database from which, using a simple SQL query, he was able to fetch all required data when needed.
 
 
 \section{Benchmark scenarios}
 
-In order to be able to measure application's ability to handle a higher number of terminals, it was required to prepare one or more benchmark scenarios that attempt to simulate real terminal behaviour.
+To be able to measure application's ability to handle a higher number of terminals, it was required to prepare one or more benchmark scenarios that attempt to simulate real terminal behaviour.
 
 
 \subsection{Terminal synchronization}
 
-All terminals periodically perform a synchronization with the Dotypay portal.
+All terminals periodically perform synchronization with the Dotypay portal.
 This behaviour was described in the assignment, but after further analysis of the Dotypay Payment Terminal application's source code it was soon discovered that the original description was quite shallow and the whole process of terminal synchronization involves more steps.
 Synchronization consists of calling Dotypay Portal API endpoints in the following order:
 
@@ -237,7 +237,7 @@ Synchronization consists of calling Dotypay Portal API endpoints in the followin
     \item and \texttt{apps} endpoint -- an endpoint that returns links to all APK files (Android application package file) to be downloaded and installed by the terminal filtered by their type (Launcher Application package, mandatory applications or optional applications).
 \end{itemize}
 
-Once terminal performs a synchronization it waits for a random duration of time ranging from 9 to 11 minutes before performing another synchronization.
+Once a terminal performs a synchronization it waits for a random duration of time ranging from 9 to 11 minutes before performing another synchronization.
 
 The aim is to simulate at least 10 000 terminals periodically performing synchronization for the duration of 1 hour.
 
@@ -303,13 +303,13 @@ In that case, multiple transactions are sent in one request.
 }
 \end{lstlisting}
 
-By having a look at the available production data of the application it was discovered that in average, every terminal performs 11 transactions per day.
+By having a look at the available production data of the application it was discovered that on average, every terminal performs 11 transactions per day.
 
 \subsection{Downloading application installation archive}
 
 Whenever there is an update to applications installed on the terminal or a new mandatory application is present in the terminal's configuration, the terminal then proceeds to download the application's installation archive\footnote{Android system uses APK (Android Package) files to distribute installation archives.}.
 
-Since there has already been an incident in the past related to application's unavailability due to multiple terminals downloading an application that has received an update, it is required to find whether this issue has been resolved. 
+Since there has already been an incident in the past related to the application's unavailability due to multiple terminals downloading an application that has received an update, it is required to find whether this issue has been resolved. 
 
 A benchmark scenario that will help to test application's ability to serve application installation files is quite simple: each simulated terminal will download an APK file using the \texttt{/api/apps/apk/{package\_name}/{name}/{version}} endpoint.
 
@@ -373,13 +373,13 @@ export const options = {
 
 
 \subsection{Transaction submission}
-In order to simulate the submission of transactions the terminal synchronization scenario implementation has been extended so that when synchronization is finished the terminal makes several HTTP requests to the \texttt{/api/transactions} endpoint with sample transaction data.
+To simulate the submission of transactions the terminal synchronization scenario implementation has been extended so that when synchronization is finished the terminal makes several HTTP requests to the \texttt{/api/transactions} endpoint with sample transaction data.
 Each request data contains a UUID and the current date.
 
 The number of transactions submitted per one terminal iteration is randomly generated and ranges from 1 to 4 (uniform distribution).
-Based on the data from production environment the total number of transactions one terminal submits in one hour of simulation is higher than the number a real terminal submits.
+Based on the data from the production environment the total number of transactions one terminal submits in one hour of simulation is higher than the number a real terminal submits.
 
-\subsection{Simulating large number of terminals}
+\subsection{Simulating a large number of terminals}
 
 Since each individual VU opens a new HTTP connection there is a limit to the maximum number of VUs the host machine can operate.
 In order to help overcoming this limitation it is required to simulate multiple terminals per one VU instance.
@@ -395,7 +395,7 @@ export default function() {
 The increase of the number of terminals one host machine can simulate is possible because the k6 tool attempts to reuse available HTTP connections within one VU.
 
 \subsection{Downloading application installation archive}
-Implementation of such scenario is quite simple as it consists only of a single request to an URL of the APK file endpoint.
+Implementation of such a scenario is quite simple as it consists only of a single request to an URL of the APK file endpoint.
 
 During the test, when a terminal finishes downloading a file, it should not start another iteration and begin downloading the file again.
 This behaviour can be achieved by changing the \texttt{iterations} attribute of the \texttt{scenario} object in the configuration\footnote{\url{https://k6.io/docs/using-k6/scenarios/executors/per-vu-iterations/}}.
@@ -403,7 +403,7 @@ This behaviour can be achieved by changing the \texttt{iterations} attribute of 
 \section{Test results visualization}
 
 As mentioned in section \ref{intro} the k6 tool does not allow for creating charts visualizing test results data when run locally.
-This results in inability to easily see how does the server response time change during the test.
+This results in the inability to easily see how does the server response time change during the test.
 To overcome this issue the author has decided to create a simple script in Python and with the use of the \texttt{matplotlib} library plot visualize the data produced by k6.
 
 \begin{figure}[!ht]
@@ -416,10 +416,10 @@ Such visualization is possible because k6 tool supports exporting test results d
 
 Before the visualization can be done the JSON file containing test results has to be processed.
 Each line of the file contains a JSON object containing either a metric definition or a measurement.
-Developer can define custom metrics or use one of those that come predefined with the tool\footnote{\url{https://k6.io/docs/using-k6/metrics/#http-specific-built-in-metrics}}.
+Developers can define custom metrics or use one of those that come predefined with the tool\footnote{\url{https://k6.io/docs/using-k6/metrics/#http-specific-built-in-metrics}}.
 
 After all measurement objects have been parsed and processed a plot using the \texttt{matplotlib} library can be displayed.
-The script also allows for exporting the created chart into a SVG file.
+The script also allows for exporting the created chart into an SVG file.
 
 Due to the lack of free k6 test results visualization tools publicly available the author has decided to publish this script to GitHub\footnote{\url{https://github.com/topnax/k6-results-visualization}}.
 
@@ -428,8 +428,8 @@ Due to the lack of free k6 test results visualization tools publicly available t
 \subsection{Terminal synchronization and transaction submission}
 During load tests following terminal synchronization and transaction submission scenarios 10 000 terminals have been simulated for a duration of one hour.
 
-First test started on 17th of January at around 8:50 am and involved both terminal synchronization and submission of transactions.
-In order to distribute terminal requests the number of terminals gradually increased from 0 to 10 000 in the first 11 minutes of the test.
+The first test started on the 17th of January at around 8:50 am and involved both terminal synchronization and submission of transactions.
+To distribute terminal requests, the number of terminals gradually increased from 0 to 10 000 in the first 11 minutes of the test.
 
 \begin{figure}[!ht]
     \centering 
@@ -438,10 +438,10 @@ In order to distribute terminal requests the number of terminals gradually incre
     \label{fig:waiting-time-1}
 \end{figure}
 
-The figure \ref{fig:waiting-time-1} contains a chart which plots the average response time (\texttt{avg http\_req\_waiting}) of all HTTP requests that have finished at a given time (granularity is one minute).
+Figure \ref{fig:waiting-time-1} contains a chart that plots the average response time (\texttt{avg http\_req\_waiting}) of all HTTP requests that have finished at a given time (granularity is one minute).
 The chart also plots the maximum HTTP request response time (\texttt{max http\_req\_waiting}) as well as the number of running VUs (\texttt{VU count})\footnote{Note that one VU simulates 10 terminals.}.
 
-By having a look at the chart \ref{fig:waiting-time-1} it can be seen that the server response time was not increasing during the 1 hour test and remained at around 50ms.
+By having a look at figure \ref{fig:waiting-time-1} it can be seen that the server response time was not increasing during the 1 hour test and remained at around 50ms.
 This might indicate that no obvious memory leak is present in the handling logic of tested endpoints.
 
 Moments later after the first load test has finished another load test following terminal synchronization scenario without submission of transactions was started.
@@ -453,22 +453,22 @@ Moments later after the first load test has finished another load test following
     \label{fig:waiting-time-2}
 \end{figure}
 
-Gathered results are comparable to the results of the first test, however, a slightly smaller spikes in the maximum HTTP response time can be seen.
+Gathered results are comparable to the results of the first test, however, slightly smaller spikes in the maximum HTTP response time can be seen.
 This is somewhat expected as the first scenario involves more HTTP requests thus putting more stress on the tested server than the second test.
 
 \begin{figure}[!ht]
     \centering 
     \includegraphics[width=1\textwidth]{img/node-cpu-usage.png}
-    \caption{A screenshot of the CPU utilization chart taken from the AWS node dashboard during terminal synchronization load test.}
+    \caption{A screenshot of the CPU utilization [\%] chart taken from the AWS node dashboard during the terminal synchronization load test.}
     \label{fig:cpu-usage-1}
 \end{figure}
 
-To further support the claim that the first test was more demanding a screenshot of the server's CPU utilization is shown in the figure \ref{fig:cpu-usage-1}.
+To further support the claim that the first test was more demanding a screenshot of the server's CPU utilization is shown in figure \ref{fig:cpu-usage-1}.
 The CPU utilization during the first test went all the way up to about 44\% and then slowly settled down at around 37\%.
-During the second test the CPU utilization of the server was hovering at around 34\%.
+During the second test, the CPU utilization of the server was hovering at around 34\%.
 
 It can be expected that the server will eventually be able to operate more than 10 000 terminals, because the server CPU was not even close to being fully utilized even though the number of transactions sent by one terminal was greater than what one production terminal sends in one hour.
-One simulated terminal submits about 12 transactions \textbf{per hour} in average as compared to a real production terminal that in average sends 11 transactions \textbf{per day}.
+One simulated terminal submits about 12 transactions \textbf{per hour} on average as compared to a real production terminal that on average sends 11 transactions \textbf{per day}.
 
 In conclusion, both tests passed successfully and the server always managed to return a valid response.
 Even though the maximum response time has been thoroughly spiking above 1000 milliseconds the average response time at any given time during the test was always acceptable.
@@ -480,41 +480,41 @@ Running load tests that follow a scenario of modeling terminals downloading an A
 The initial configuration was to gradually start up 250 terminals in 120 seconds and once started, every terminal begins to download an application installation archive\footnote{All terminals were downloading one shared file.}.
 
 During the startup, when about 200 terminals were downloading an APK file, non-success HTTP request response were being returned by the server due to a timeout error.
-In order to prevent server failure and crash, the test was immediately cancelled.
+In order to prevent server failure and crash, the test was immediately canceled.
 
 After a brief delay, the test was started again, however, with very similar results.
-Timeout errors occured once again at about 205 active terminals.
+Timeout errors occurred once again at about 205 active terminals.
 
-During the third load test, at 206 active terminals, timeout errors were received, the test was cancelled, but the server presumably crashed and failed to answer to any other requests that followed.
+During the third load test, at 206 active terminals, timeout errors were received, the test was canceled, but the server presumably crashed and failed to answer to any other requests that followed.
 Even a request to the login page of the application failed to be processed and no response from the server was received. 
 
 In addition to downloading APK files, a measurement of response times of the login page load times was being made.
 As the number of active terminals increased, load times also did.
-At the end of the last test it took more than 56 seconds to receive the last response containing login page data, and after that, the server became unavailable.
+At the end of the last test, it took more than 56 seconds to receive the last response containing login page data, and after that, the server became unavailable.
 
-This behaviour is most likely related to a high CPU usage caused by multiple terminals downloading an APK file.
+This behaviour is most likely related to a high CPU usage in combination with a great number of concurrent HTTP connections caused by multiple terminals downloading an APK file.
 
 \begin{figure}[!ht]
     \centering 
-    \includegraphics[width=1\textwidth]{example-image-a}
-    \caption{A screenshot of the CPU utilization chart taken from the AWS node dashboard during load testing of the APK file endpoint.}
+    \includegraphics[width=1\textwidth]{img/node-cpu-usage-2.png}
+    \caption{A screenshot of the CPU utilization [\%] chart taken from the AWS node dashboard during load testing of the APK file endpoint.}
     \label{fig:cpu-usage-2}
 \end{figure}
 
 \section{Summary}
 Both load tests following the terminal synchronization and transaction submission scenarios did not cause any significant slowdown of the application.
-If created scenarios do model reality precisely enough, then it could be said that the application will be able to operate atleast 10 000 terminals (as opposed to ~2500 terminals that it operates now).
+If created scenarios do model reality precisely enough, then it could be said that the application will be able to operate at least 10 000 terminals (as opposed to ~2500 terminals that it operates now).
 
-However, the application does not handle distribution of APK files well enough, as it starts to return non-success HTTP response codes when more than 200 terminals are downloading a single APK file.
-In one occasion, the server was unavailable for the next few hours even after the load test has finished.
+However, the application does not handle the distribution of APK files well enough, as it starts to return non-success HTTP response codes when more than 200 terminals are downloading a single APK file.
+On one occasion, the server was unavailable for the next few hours even after the load test has finished.
 As seen from the monitoring dashboard of the server, the CPU usage was peaking, which may indicate ineffective implementation of file distribution.
-Other presumable cause might be that the server runs out of available HTTP connections, and is not able to stream the file (or any other data) to other terminals.
+Another presumable cause might be that the server runs out of available HTTP connections, and is not able to stream the file (or any other data) to other terminals.
 
-The team at Dotypay will have to mitigate this issue as it may be very likely that in production environment a scenario like this occurs.
+The team at Dotypay will have to mitigate this issue as it may be very likely that in the production environment a scenario like this occurs.
 Suppose a critical update to the payment application becomes available, it is required that all terminals receive this update as soon as possible.
 Currently, when an application update is released, it is distributed via a staged rollout to prevent excessive server load, but at the cost of slower deployment of a new version.
 
-It should also be noted that once data of 10 000 terminals was present in the application's database, the loading time of the table\footnote{A HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from previously measured 1 second in average.
+It should also be noted that once data of 10 000 terminals was present in the application's database, the loading time of the table\footnote{An HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from the previously measured 1 second on average.
 The cause of this slowdown has not been identified yet and the team at Dotypay will further investigate it.
 
 The k6 tool proved itself to be a great tool for benchmarking web applications, as it allowed for easy definition and configuration of performant tests. 
