@@ -441,7 +441,7 @@ In order to distribute terminal requests the number of terminals gradually incre
 The figure \ref{fig:waiting-time-1} contains a chart which plots the average response time (\texttt{avg http\_req\_waiting}) of all HTTP requests that have finished at a given time (granularity is one minute).
 The chart also plots the maximum HTTP request response time (\texttt{max http\_req\_waiting}) as well as the number of running VUs (\texttt{VU count})\footnote{Note that one VU simulates 10 terminals.}.
 
-By having a look at the chart \ref{fig:waiting-time-1} it can be seen that the server response time was not increasing during the 1 hour test.
+By having a look at the chart \ref{fig:waiting-time-1} it can be seen that the server response time was not increasing during the 1 hour test and remained at around 50ms.
 This might indicate that no obvious memory leak is present in the handling logic of tested endpoints.
 
 Moments later after the first load test has finished another load test following terminal synchronization scenario without submission of transactions was started.
@@ -503,14 +503,24 @@ This behaviour is most likely related to a high CPU usage caused by multiple ter
 
 \section{Summary}
 Both load tests following the terminal synchronization and transaction submission scenarios did not cause any significant slowdown of the application.
-If created scenarios do model reality precisely enough precision, then it could be said that the application will be able to operate atleast 10 000 terminals (as opposed to ~2500 terminals that it operates now).
+If created scenarios do model reality precisely enough, then it could be said that the application will be able to operate atleast 10 000 terminals (as opposed to ~2500 terminals that it operates now).
 
-However, the application does not handle distribution of APK files well enough as it starts to return non-success HTTP response codes when more than 200 terminals are downloading a single APK file.
-In one occasion the server was unavailable for the next hours even after the load test has finished.
-One 
+However, the application does not handle distribution of APK files well enough, as it starts to return non-success HTTP response codes when more than 200 terminals are downloading a single APK file.
+In one occasion, the server was unavailable for the next few hours even after the load test has finished.
+As seen from the monitoring dashboard of the server, the CPU usage was peaking, which may indicate ineffective implementation of file distribution.
+Other presumable cause might be that the server runs out of available HTTP connections, and is not able to stream the file (or any other data) to other terminals.
 
-It should also be noted that after adding 7500 terminals to the application's database, the loading time of the table\footnote{A HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from previously measured 1 second in average.
+The team at Dotypay will have to mitigate this issue as it may be very likely that in production environment a scenario like this occurs.
+Suppose a critical update to the payment application becomes available, it is required that all terminals receive this update as soon as possible.
+Currently, when an application update is released, it is distributed via a staged rollout to prevent excessive server load, but at the cost of slower deployment of a new version.
+
+It should also be noted that after adding 7500 terminals to the application's database using the created terminal management tool, the loading time of the table\footnote{A HTML table present in the GUI of the application, accessible after user authentication.} that displays available terminals has increased to an average of 6 seconds from previously measured 1 second in average.
 The cause of this slowdown has not been identified yet and the team at Dotypay will further investigate it.
+
+The k6 tool proved itself to be a great tool for benchmarking web applications, as it allowed for easy definition and configuration of performant tests. 
+
+To better understand the application's limit, it may be required to use more machines or the distributed k6 cloud load tests feature, as one machine may not be able to put enough stress on the server when running a terminal synchronization scenario test.
+Since created source files can be directly run in the k6 cloud (if a paid k6 plan is used) or run on multiple machines at one time, it will not pose a great difficulty to scale the created scenarios. The Dotypay team will have a great tool for benchmarking its servers.
 
 
 \end{document}
