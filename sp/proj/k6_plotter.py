@@ -14,9 +14,18 @@ def round_seconds(date_time_object):
     new_date_time = date_time_object
 
     if new_date_time.microsecond >= 500000:
-       new_date_time =new_date_time + datetime.timedelta(seconds=1)
+       new_date_time = new_date_time + datetime.timedelta(seconds=1)
 
     return new_date_time.replace(microsecond=0)
+
+
+def round_minutes(date_time_object):
+    new_date_time = date_time_object
+
+    if new_date_time.second >= 30:
+       new_date_time = new_date_time + datetime.timedelta(minutes=1)
+
+    return new_date_time.replace(second=0)
 
 
 def load_data(file_name):
@@ -44,6 +53,7 @@ def get_avg_and_max_from_data(metric_data_raw):
 
     for (time, value) in zip(metric_data_raw[0], metric_data_raw[1]):
         # round the time to seconds
+        # time = round_minutes(round_seconds(time))
         time = round_seconds(time)
 
         # find the current entry
@@ -95,7 +105,20 @@ def display_chart(metric_data_avg, metric_data_max, vus_data, watched_metric):
 
     # show the chart
     plt.title("k6 load test results chart")
-    plt.savefig("test.svg", format="svg")
+    
+    # TODO save the plot to a file (file name from arguments)
+    # plt.savefig("test.svg", format="svg")
+
+    plt.show()
+
+
+def display_hist(metric_data_values):
+    n_bins = 20
+
+    # We can set the number of bins with the *bins* keyword argument.
+    # axs.hist(metric_data_values, bins=n_bins)
+    plt.hist(metric_data_values)
+
     plt.show()
 
 
@@ -116,8 +139,11 @@ def process_file(file_name, watched_metric):
     vus_data = get_metric_data(data, "vus")
     
     print("Displaying chart...") 
+
     # display a chart
     display_chart(metric_data_avg, metric_data_max, vus_data, watched_metric)
+    
+    # display_hist(metric_data_raw[1])
 
 
 if __name__ == "__main__":
